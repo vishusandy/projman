@@ -43,31 +43,44 @@ impl VarStr {
     pub fn from_str<'a>(string: &'a str) -> VarStr {
         VarStr::Unparsed( UnparsedVar { string: string.to_string() } )
     }
-    pub fn str<'a>(&self) -> &'a str {
-        match *self {
-            VarStr::Unparsed(var) => &var.string,
-            VarStr::Parsed(var) => &var.string,
-            // _ => "",
-        }
-    }
     pub fn string(&self) -> String {
         match *self {
-            VarStr::Unparsed(var) => var.string,
-            VarStr::Parsed(var) => var.string,
+            VarStr::Unparsed(ref var) => var.string.clone(),
+            VarStr::Parsed(ref var) => var.string.clone(),
             // _ => String::new(),
         }
     }
+    pub fn clone(&self) -> VarStr {
+        match self {
+            &VarStr::Unparsed(ref var) => VarStr::Unparsed(UnparsedVar { string: var.string.clone() } ),
+            &VarStr::Parsed(ref var) => VarStr::Parsed(ParsedVar { string: var.string.clone() } ),
+        }
+    }
+    // pub fn str<'a>(&self) -> &'a str {
+    //     if let &Unparsed(ref var) = self {
+    //         &var.string
+    //     } else if let &Parsed(ref var) = self {
+    //         &var.string
+    //     } else {
+    //         ""
+    //     }
+    //     // match *self {
+    //     //     VarStr::Unparsed(var) => string(),
+    //     //     VarStr::Parsed(var) => var.string.clone().as_str(),
+    //     //     // _ => "",
+    //     // }
+    // }
 }
 impl HasVars for VarStr {
     fn list_vars(&self) -> Vec<String> {
-        if let &VarStr::Unparsed(unparsed) = self {
-            let string = unparsed.string;
+        if let &VarStr::Unparsed(ref unparsed) = self {
+            let string = unparsed.string.clone();
             lazy_static! {
                 static ref VARS: Regex = Regex::new(r#"[[(.*?)]]"#).unwrap();
             }
             // this is -a [[test of "epic" proportions]] and [[more]]
             let mut found: Vec<String> = Vec::new();
-            for var in VARS.captures_iter(self.str()) {
+            for var in VARS.captures_iter(&self.string()) {
                 // if let Some() = caps.get(1 { }
                 found.push(var[1].to_string());
             }
@@ -78,8 +91,8 @@ impl HasVars for VarStr {
     }
     fn replace_vars<T: Configurable>(&self, cfg: T) -> VarStr {
         let list: Vec<String> = self.list_vars();
-        if let &Unparsed(unparsed) = self {
-            let string = unparsed.string;
+        if let &Unparsed(ref unparsed) = self {
+            let string = unparsed.string.clone();
             let mut new = string.clone();
             for var in list {
                 // Method A: Add trait method to retrieve a variable
@@ -107,7 +120,7 @@ impl HasVars for VarStr {
                 string: new
             })
         } else {
-            *self
+            self.clone()
         }
     }
     fn replace_custom<'a>(&self, vars: HashMap<&'a str, &'a str>) -> VarStr {

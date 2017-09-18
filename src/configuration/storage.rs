@@ -29,7 +29,7 @@ impl LocalCfg {
             project_name: self.project_name.clone(),
             proj_type: self.proj_type.clone(),
             autoruns: self.autoruns.clone(),
-            custom_commands: self.custom_commands,
+            custom_commands: self.custom_commands.clone(),
         }
     }
     pub fn new(proj_path: PathBuf) -> LocalCfg {
@@ -56,10 +56,10 @@ impl Local {
             inc_version: self.inc_version.to_str().to_string(),
             language: self.language.to_str().to_string(),
             // .. *self
-            project_name: self.project_name,
-            proj_type: self.proj_type,
-            autoruns: self.autoruns,
-            custom_commands: self.custom_commands,
+            project_name: self.project_name.clone(),
+            proj_type: self.proj_type.clone(),
+            autoruns: self.autoruns.clone(),
+            custom_commands: self.custom_commands.clone(),
         }
     }
     pub fn new(proj_path: PathBuf) -> Local {

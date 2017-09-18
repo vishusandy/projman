@@ -29,7 +29,7 @@ impl Executable {
             source,
             runin: None,
             // args: if args.args.is_some() && args.args.unwrap_or("") !="" {
-            args: if args.str() != "" { // && args.args.unwrap_or("") !="" {
+            args: if &args.string() != "" { // && args.args.unwrap_or("") !="" {
                 Some(args)
             } else {
                 None
@@ -166,19 +166,32 @@ impl ::structures::Runnable for Executable {
             }
             let mut args: Vec<&str>;
             if self.args.is_some() {
-                let arg = match self.args.unwrap() {
-                    VarStr::Parsed(var) => var.string,
-                    // maybe add a global static for containing the Global config
-                    VarStr::Unparsed(var) => var.string, // call the parse_vars()
-                    _ => String::new(),
-                };
-                let args = ::helpers::split_string(&arg);
-                for a in args {
-                    cmd = *cmd.arg(a);
+                // let arg = match self.args {
+                //     Some(VarStr::Parsed(var)) => var.string,
+                //     // maybe add a global static for containing the Global config
+                //     Some(VarStr::Unparsed(var)) => var.string, // call the parse_vars()
+                //     _ => String::new(),
+                // };
+                // let arg = match self.args.unwrap() {
+                //     VarStr::Parsed(var) => var.string,
+                //     // maybe add a global static for containing the Global config
+                //     VarStr::Unparsed(var) => var.string, // call the parse_vars()
+                //     _ => String::new(),
+                // };
+                if self.args.is_some() {
+                    if let Some(ref argd) = self.args {
+                        let arg = argd.string();
+                        // let arg = self.args.unwrap().string();
+                        let args = ::helpers::split_string(&arg);
+                        cmd.args(&args);
+                        // for a in args {
+                        //     cmd = *cmd.arg(a);
+                        // }
+                    }
                 }
-                if let Some(runin) = self.runin {
+                if let Some(ref runin) = self.runin {
                     if runin.exists() {
-                        cmd = *cmd.current_dir(&runin);
+                        cmd.current_dir(&runin);
                     }
                 }
             }
