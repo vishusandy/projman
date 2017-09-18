@@ -1,18 +1,16 @@
 
-extern crate serde_json;
-
-use serde::{Deserialize, Serialize};
-use rmps::{Deserializer, Serializer};
+// extern crate serde_json;
 use std::path::{Path, PathBuf};
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::{Write, Read};
-use serde::{Deserialize, Serialize};
-use rmps::{Deserializer, Serializer};
+use ::serde::{Deserialize, Serialize};
+use ::rmps::{Deserializer, Serializer};
+use serde_json::Error;
 
 use super::*;
-use defaults::*;
-
+// use structures::*;
+use structures::defaults::{DEFAULT_VCS, DEFAULT_VERSION_INC, DEFAULT_LANGUAGE};
 
 
 pub trait Configurable {
@@ -74,33 +72,33 @@ impl Local {
 
 
 impl Configurable for Local {
-    pub fn store(&self, path: PathBuf) -> bool {
+    fn store(&self, path: PathBuf) -> bool {
         if !path.exists() {
             return false;
         }
         let mut f = File::create(path.to_str().expect("Could not convert path to string.")).expect("Could not create file for config serialization.");
-        let ser = serde_json::to_string(self).expect("Could not serialize configuration data.");
+        let ser = ::serde_json::to_string(self).expect("Could not serialize configuration data.");
         
         #[allow(dead_code)]
         let rst = f.write(ser.as_bytes());
         
     }
-    pub fn retrieve(path: PathBuf) -> Local {
+    fn retrieve(path: PathBuf) -> Local {
         let mut open = File::open(path.to_str().expect("Could not convert path to a string."));
         match open {
             Ok(mut f) => {
                 let mut buffer: String = String::new();
                 f.read_to_string(&mut buffer);
-                let out: Local = serde+json::from_str(&mut buffer).expect("Could not deserialize configuration data.");
+                let out: Local = ::serde_json::from_str(&mut buffer).expect("Could not deserialize configuration data.");
             },
             Err(_) => {
-                let local: Local = Local::new(PathBuf.parent());
+                let local: Local = Local::new(path.parent());
                 local.store();
                 local
             }
         }
     }
-    pub fn parse_vars(&mut self) {
+    fn parse_vars(&mut self) {
         
     }
 }

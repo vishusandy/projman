@@ -1,11 +1,18 @@
+extern crate serde;
+extern crate serde_json;
+#[macro_use] extern crate serde_derive;
+#[macro_use] extern crate lazy_static;
+extern crate regex;
+extern crate semver;
+extern crate rmp_serde as rmps;
+
+
 mod configuration;
 mod project;
 mod structures;
 mod manager;
 mod helpers;
 
-#[macro_use] extern crate lazy_static;
-extern crate regex;
 
 use manager::*;
 

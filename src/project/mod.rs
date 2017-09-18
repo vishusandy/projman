@@ -1,10 +1,13 @@
 use semver::Version;
+use std::path::{Path, PathBuf};
 
 mod proj_rust;
-use proj_rust::*;
+use self::proj_rust::*;
+use ::serde::{Deserialize, Serialize};
+use ::rmps::{Deserializer, Serializer};
 
 // Implementors of Project trait must also implement Configurable to save/load the config data
-pub trait Project : Configurable {
+pub trait Project : ::configuration::storage::Configurable {
     type B: Project; // collection of actions
     
     fn language(&self) -> String;

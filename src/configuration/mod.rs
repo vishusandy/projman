@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use std::ffi::OsString;
 use std::collections::HashMap;
 
-mod storage;
+pub mod storage;
 use structures::*;
 
 // saved as a hjson file
@@ -46,6 +46,14 @@ pub struct GlobalInstall {
     install_bin_path: PathBuf,
     install_path: PathBuf,
     os: OperatingSystem,
+    
+}
+
+// pub struct Global<T: ::configuration::storage::Configurable> {
+pub struct Global<T: ::project::Project> {
+    local: T,
+    user: GlobalUser,
+    install: GlobalInstall,
     
 }
 

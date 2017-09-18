@@ -112,7 +112,7 @@ impl Executable {
                     source: PathBuf::from(String::from(v[0])),
                     runin: None,
                     args: if v[1] != "" {
-                        Some(StrVar::from(v[1]))
+                        Some(::structures::var_str::VarStr::from(v[1]))
                     } else {
                         None
                     },
@@ -128,11 +128,11 @@ impl Executable {
 
 
 
-impl Runnable for Executable {
-    pub fn exists(&self) -> bool {
+impl ::structures::Runnable for Executable {
+    fn exists(&self) -> bool {
         self.source.exists()
     }
-    pub fn run(&self) -> Result<String, String> {
+    fn run(&self) -> Result<String, String> {
         if self.exists() {
             let mut cmd = Command::new();
             lazy_static! {
@@ -145,7 +145,7 @@ impl Runnable for Executable {
                     // maybe add a global static for containing the Global config
                     VarStr::Unparsed(var) => var.string, // call the parse_vars()
                 };
-                let args = parse_exe_args(&arg);
+                let args = ::helpers::split_string(&arg);
                 for a in args {
                     cmd = cmd.arg();
                 }

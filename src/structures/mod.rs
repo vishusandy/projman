@@ -1,14 +1,25 @@
 
-mod var_str;
-use var_str::*;
+pub mod var_str;
+use self::var_str::*;
 
-mod executables;
-use executables::*;
+pub mod executables;
+use self::executables::*;
+
+pub mod defaults;
+use structures::defaults::*;
+// use structures::defaults::{DEFAULT_VCS, DEFAULT_VERSION_INC, DEFAULT_LANGUAGE};
+
+use std::collections::HashMap;
+use std::path::{Path, PathBuf};
+
+use ::serde::{Deserialize, Serialize};
+use ::rmps::{Deserializer, Serializer};
 
 
 pub trait HasVars {
     fn list_vars(&self) -> Vec<String>;
-    fn replace_vars(&self) -> VarStr;
+    // fn replace_vars<T: ::configuration::storage::Configurable(&self) -> VarStr;
+    fn replace_vars<T: ::configuration::storage::Configurable(&self, T) -> VarStr;
     fn replace_custom<'a>(&self, HashMap<&'a str, &'a str>) -> VarStr;
 }
 pub trait Runnable {

@@ -7,6 +7,13 @@ use std::path::{Path, PathBuf};
 
 use std::ffi::OsString;
 use regex::Regex;
+use super::*;
+use structures::var_str::VarStr::*;
+use std::collections::HashMap;
+use configuration::storage::Configurable;
+
+use ::serde::{Deserialize, Serialize};
+use ::rmps::{Deserializer, Serializer};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum VarStr {
@@ -35,9 +42,9 @@ impl VarStr {
     }
 }
 impl HasVars for VarStr {
-    pub fn list_vars(&self) -> Vec<String> {
-        if let UnparsedVar(string) = self {
-                
+    fn list_vars(&self) -> Vec<String> {
+        if let VarStr::Unparsed(unparsed) = self {
+            let string = unparsed.string;
             lazy_static! {
                 static ref VARS: Regex = Regex::new(r#"[[(.*?)]]"#).unwrap();
             }
@@ -52,7 +59,7 @@ impl HasVars for VarStr {
             Vec::new()
         }
     }
-    pub fn replace_vars<T: Configurable>(&self, cfg: T) -> VarStr {
+    fn replace_vars<T: Configurable>(&self, cfg: T) -> VarStr {
         let list: Vec<String> = self.list_vars();
         if let Unparsed(unparsed) = self {
             let string = unparsed.string;
@@ -84,7 +91,7 @@ impl HasVars for VarStr {
             self
         }
     }
-    pub fn replace_custom<'a>(&self, vars: HashMap<&'a str, &'a str>, cfg: Global) -> VarStr {
+    fn replace_custom<'a>(&self, vars: HashMap<&'a str, &'a str>) -> VarStr {
         
         // TODO: actually implement this
         VarStr::Unparsed( UnparsedVar {
