@@ -1,7 +1,6 @@
 
 
-#[macro_use] extern crate lazy_static;
-extern crate regex;
+
 
 use std::env;
 use std::path::{Path, PathBuf};
@@ -85,7 +84,7 @@ impl HasVars for VarStr {
             self
         }
     }
-    pub fn replace_custom<'a>(&self, HashMap<&'a str, &'a str>, cfg: Global) -> VarStr {
+    pub fn replace_custom<'a>(&self, vars: HashMap<&'a str, &'a str>, cfg: Global) -> VarStr {
         
         // TODO: actually implement this
         VarStr::Unparsed( UnparsedVar {

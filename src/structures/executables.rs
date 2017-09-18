@@ -1,5 +1,4 @@
 
-mod helpers;
 use helpers::*;
 
 use super::VarStr;
@@ -19,34 +18,40 @@ pub struct Executable {
 
 impl Executable {
     pub fn blank() -> Executable {
-        source: PathBuf::from(""),
-        args: None,
+            Executable {
+            source: PathBuf::from(""),
+            args: None,
+        }
     }
     pub fn new(source: PathBuf, args: VarStr) -> Executable {
-        source,
-        runin: None,
-        args: if args.args.is_some() && args.args.unwrap_or("") !="" {
-            Some(args)
-        } else {
-            None
-        },
+        Executable {
+            source,
+            runin: None,
+            args: if args.args.is_some() && args.args.unwrap_or("") !="" {
+                Some(args)
+            } else {
+                None
+            },
+        }
     }
     pub fn from(src: String, runin: String, args: String) -> Executable {
-        source: PathBuf::from(src),
-        runin: if runin != "".to_string() {
-            let runin_path: PathBuf = PathBuf::from(&runin);
-            if runin_path.exists() {
-                Some(runin)
+        Executable {
+            source: PathBuf::from(src),
+            runin: if runin != "".to_string() {
+                let runin_path: PathBuf = PathBuf::from(&runin);
+                if runin_path.exists() {
+                    Some(runin)
+                } else {
+                    None
+                }
+            } else {
+                None
+            },
+            args: if args != "".to_string() {
+                Some(args)
             } else {
                 None
             }
-        } else {
-            None
-        },
-        args: if args != "".to_string() {
-            Some(args)
-        } else {
-            None
         }
     }
     pub fn from_str<'a>(src: &'a str) -> Executable {
@@ -58,7 +63,7 @@ impl Executable {
         }
         // let r = RUNIN.captures(src);
         if let Some(cap) = RUNIN.captures(src) {
-            let output = format!("", cap.get(0), cap.get(2), cap.get(3));
+            // let output = format!("{}{}{}", cap.get(0), cap.get(2), cap.get(3));
             Executable {
                 source: cap.get(0),
                 runin: if cap.get(2).is_some() && cap.get(2).unwrap_or("".to_string()).as_str() != "" {

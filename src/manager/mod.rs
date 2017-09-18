@@ -1,14 +1,14 @@
 
-mod configuration;
-mod structures;
-mod project;
-mod helpers;
+// mod configuration;
+// mod structures;
+// mod project;
+// mod helpers;
 
 
-use configuration::*;
-use structures::*;
-use project::*;
-use helpers::*;
+// use super::configuration::*;
+// use self::structures::*;
+// use self::project::*;
+// use self::helpers::*;
 
 
 // check for existence of global_install.cfg, global_user.cfg, and proman_local.cfg (local project cfg)

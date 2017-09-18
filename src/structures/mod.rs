@@ -1,6 +1,6 @@
 
 mod var_str;
-use var_str::*
+use var_str::*;
 
 mod executables;
 use executables::*;
@@ -19,21 +19,21 @@ pub trait Runnable {
 // #[derive(Debug)]
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Language {
-    AutoHotKey
-    AutoIt
-    C
-    CPlusPlus
-    CSharp
-    Go
-    Haskell
-    Java
-    JavaScript
-    Php
-    Python
-    Ruby
-    Rust
-    Text
-    Web
+    AutoHotKey,
+    AutoIt,
+    C,
+    CPlusPlus,
+    CSharp,
+    Go,
+    Haskell,
+    Java,
+    JavaScript,
+    Php,
+    Python,
+    Ruby,
+    Rust,
+    Text,
+    Web,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

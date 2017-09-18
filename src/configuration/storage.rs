@@ -23,11 +23,13 @@ pub trait Configurable {
 
 impl LocalCfg {
     pub fn to_local(&self) -> Local {
-        project_path: PathBuf::from(self.project_path),
-        vcs: VersionControl::from_str(&self.vcs),
-        inc_version: VersionControl::from_str(&self.inc_version),
-        language: Language::from_str(&self.language),
-        .. self
+        Local {
+            project_path: PathBuf::from(self.project_path),
+            vcs: VersionControl::from_str(&self.vcs),
+            inc_version: VersionControl::from_str(&self.inc_version),
+            language: Language::from_str(&self.language),
+            .. self
+        }
     }
     pub fn new(proj_path: PathBuf) -> LocalCfg {
         LocalCfg {
@@ -47,11 +49,13 @@ impl LocalCfg {
 
 impl Local {
     pub fn to_local_cfg(&self) -> LocalCfg {
-        project_path: self.project_path.to_str().unwrap_or(""),
-        vcs: self.vcs.to_str().to_string(),
-        inc_version: self.inc_version.to_str().to_string(),
-        language: self.language.to_str().to_string(),
-        .. self
+        LocalCfg {
+            project_path: self.project_path.to_str().unwrap_or(""),
+            vcs: self.vcs.to_str().to_string(),
+            inc_version: self.inc_version.to_str().to_string(),
+            language: self.language.to_str().to_string(),
+            .. self
+        }
     }
     pub fn new(proj_path: PathBuf) -> Local {
         Local {
