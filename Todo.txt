@@ -1,0 +1,6 @@
+
+
+
+Improve error handling, replace expects and unwraps in the 
+    Configurable implementations with actual error handling
+
