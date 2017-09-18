@@ -22,13 +22,13 @@ pub trait Configurable {
 impl LocalCfg {
     pub fn to_local(&self) -> Local {
         Local {
-            project_path: PathBuf::from(self.project_path),
+            project_path: PathBuf::from(self.project_path.clone()),
             vcs: VersionControl::from_str(&self.vcs),
             inc_version: VersionInc::from_str(&self.inc_version),
             language: Language::from_str(&self.language),
-            project_name: self.project_name,
-            proj_type: self.proj_type,
-            autoruns: self.autoruns,
+            project_name: self.project_name.clone(),
+            proj_type: self.proj_type.clone(),
+            autoruns: self.autoruns.clone(),
             custom_commands: self.custom_commands,
         }
     }
