@@ -67,7 +67,14 @@ impl Local {
     pub fn blank(proj_path: PathBuf) -> Local {
         Local {
             project_name: proj_path.file_name().unwrap().to_string_lossy().into_owned(),
-            project_path: proj_path,
+            project_path: if proj_path.is_dir() {
+                proj_path
+            } else if proj_path.is_file() {
+                proj_path.parent().unwrap_or(&proj_path).to_path_buf()
+            } else {
+                // proj_path.parent().unwrap_or(&proj_path).to_path_buf()
+                proj_path
+            },
             vcs: DEFAULT_VCS,
             inc_version: DEFAULT_VERSION_INC,
             language: DEFAULT_LANGUAGE,
@@ -310,22 +317,58 @@ impl Configurable for Local {
 // }
 
 
-pub fn store_configs_blank(path: PathBuf) {
-    let mut dir: PathBuf;
-    let mut file: PathBuf;
-    if path.is_dir() {
-        dir = path;
-        file = dir.clone();
-        file.set_file_name("");
-    } else if path.is_file() {
-        file = path.clone();
-        dir = path.parent().unwrap_or(&path).to_path_buf();
-    } else {
-        panic!("Path is neither Directory nor File.");
-    }
-    let mut local: Local = Local::blank(dir);
-    let mut user: GlobalUser = GlobalUser::blank();
-    let mut install: GlobalInstall = GlobalInstall::blank();
+// pub fn store_configs_blank(path: PathBuf) {
+    // let mut dir: PathBuf;
+    // let mut file: PathBuf;
+    // if path.is_dir() {
+    //     dir = path;
+    //     file = dir.clone();
+    //     file.set_file_name("");
+    // } else if path.is_file() {
+    //     file = path.clone();
+    //     dir = path.parent().unwrap_or(&path).to_path_buf();
+    // } else {
+    //     panic!("Path is neither Directory nor File.");
+    // }
+    // let mut local: Local = Local::blank(dir);
+    // let mut user: GlobalUser = GlobalUser::blank();
+    // let mut install: GlobalInstall = GlobalInstall::blank();
+    
+    
+pub fn store_configs_blank() {
+    let install_path = PathBuf::from(r#"c:\program files\proman\install.cfg"#);
+    let user_path = PathBuf::from(r#"c:\users\Andrew\proman\user.cfg"#);
+    let local_path = PathBuf::from(r#"c:\code\proj\protest\proman.cfg"#);
+    
+    // let install_new = GlobalInstall::blank();
+    // let user_new = GlobalUser::blank();
+    // let local_new = Local::blank(local_path);
+    let install = GlobalInstall::blank();
+    let user = GlobalUser::blank();
+    let local = Local::blank(local_path.clone());
+    
+    println!("-----BLANK'd Data-----");
+    println!("Global Install Config: {:?}", install);
+    println!("Global User Config: {:?}", user);
+    println!("Local Pojrect Config: {:?}", local);
+    
+    println!("-----STORE'd Results-----");
+    println!("Install Config Store: {:?}" , install.store(install_path.clone()));
+    println!("User Config Store: {:?}" , user.store(user_path.clone()));
+    println!("Local Config Store: {:?}" , local.store(local_path.clone()));
+    
+    
+    println!("-----RETRIEVE'd Results-----");
+    let install_get = GlobalInstall::retrieve(PathBuf::from(install_path.clone()));
+    let user_get = GlobalUser::retrieve(PathBuf::from(user_path.clone()));
+    let local_get = Local::retrieve(PathBuf::from(local_path.clone()));
+    
+    println!("-----RETRIEVE'd Data-----");
+    println!("Global InstallGet Config: {:?}", install_get);
+    println!("Global UserGet Config: {:?}", user_get);
+    println!("Local PojrectGet Config: {:?}", local_get);
+    
+    
     // let mut global: Global {
     //     local,
     //     local_details: {

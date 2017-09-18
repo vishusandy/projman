@@ -36,7 +36,7 @@ fn main() {
     println!("Hello, world!");
     println!("This is the `run` command!");
     
-    
+    ::configuration::storage::store_configs_blank();
     
     
     
