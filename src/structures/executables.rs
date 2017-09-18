@@ -16,6 +16,13 @@ pub struct Executable {
     args: Option<VarStr>,
 }
 
+// #[derive(Serialize, Deserialize, Debug)]
+// pub struct Exe <T: ::structures::HasVars> {
+//     source: PathBuf,
+//     runin: Option<PathBuf>,
+//     args: Option<T>,
+// }
+
 impl Executable {
     pub fn blank() -> Executable {
             Executable {

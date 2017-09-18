@@ -3,8 +3,17 @@ name = "projman"
 version = "0.1.0"
 authors = ["Andrew Prindle <prindle.andrew@gmail.com>"]
 
+[[bin]]
+name = "projman"
+path = "src/main.rs"
+
+[[bin]]
+name = "run"
+path = "src/run.rs"
+
 [dependencies]
 argparse = "0.2.*"
+os_type="1.0.0"
 regex = "0.2.*"
 rmp-serde = "0.13.*"
 scan_dir = "0.3.3"

@@ -37,12 +37,13 @@ pub struct Local {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GlobalUser {
     user_bin_path: PathBuf,
-    user_path: PathBuf,
+    // user_path: PathBuf, // moved to the GlobalInstall struct
     
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GlobalInstall {
+    user_dir: PathBuf,
     install_bin_path: PathBuf,
     install_path: PathBuf,
     os: OperatingSystem,
@@ -51,7 +52,8 @@ pub struct GlobalInstall {
 
 // pub struct Global<T: ::configuration::storage::Configurable> {
 pub struct Global<T: ::project::Project> {
-    local: T,
+    local: Local,
+    local_details: T,
     user: GlobalUser,
     install: GlobalInstall,
     

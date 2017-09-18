@@ -7,11 +7,13 @@ use std::io::{Write, Read};
 use ::serde::{Deserialize, Serialize};
 use ::rmps::{Deserializer, Serializer};
 use serde_json::Error;
+use std::env;
 
 use super::*;
 // use structures::*;
 use structures::defaults::{DEFAULT_VCS, DEFAULT_VERSION_INC, DEFAULT_LANGUAGE};
-
+// use ::strucutres::{DEFAULT_INSTALL_PATH, OPERATING_SYSTEM, ARCHITECTURE};
+use ::structures::OperatingSystem;
 
 pub trait Configurable {
     fn store(&self, PathBuf) -> bool;
@@ -32,7 +34,7 @@ impl LocalCfg {
             custom_commands: self.custom_commands.clone(),
         }
     }
-    pub fn new(proj_path: PathBuf) -> LocalCfg {
+    pub fn blank(proj_path: PathBuf) -> LocalCfg {
         LocalCfg {
             // project_name: if proj_path.is_dir() { proj_path.file_name().to_string_lossy().into_owned() } else {},
             project_name: proj_path.file_name().unwrap().to_string_lossy().into_owned(),
@@ -62,7 +64,7 @@ impl Local {
             custom_commands: self.custom_commands.clone(),
         }
     }
-    pub fn new(proj_path: PathBuf) -> Local {
+    pub fn blank(proj_path: PathBuf) -> Local {
         Local {
             project_name: proj_path.file_name().unwrap().to_string_lossy().into_owned(),
             project_path: proj_path,
@@ -74,9 +76,167 @@ impl Local {
             custom_commands: Vec::new(),
         }
     }
+    pub fn new(proj_path: PathBuf, proj_name: String, proj_lang: ::structures::Language, proj_type: String) -> Local {
+        Local {
+            project_name: proj_name,
+            project_path: proj_path,
+            vcs: DEFAULT_VCS,
+            inc_version: DEFAULT_VERSION_INC,
+            proj_type: {
+                let l = proj_lang.to_str();
+                let mut t = String::with_capacity(proj_type.len() + l.len() + 3);
+                t.push_str(l);
+                t.push_str(".");
+                t.push_str(&proj_type);
+                t
+            },
+            language: proj_lang, // this must go after proj_type in order to prevent ownership error stuff etc
+            autoruns: Vec::new(),
+            custom_commands: Vec::new(),
+        }
+    }
     
 }
 
+impl GlobalUser {
+    pub fn blank() -> GlobalUser {
+        GlobalUser {
+            user_bin_path: {
+                let mut dir = env::home_dir().expect("Could not find user directory.");
+                dir.push("proman");
+                dir.push("bin");
+                dir
+            },
+        }
+    }
+    pub fn new(bin_dir: PathBuf) -> GlobalUser {
+        GlobalUser {
+            user_bin_path: if bin_dir.is_dir() {
+                bin_dir
+            } else if bin_dir.is_file() {
+                bin_dir.parent().unwrap_or(&bin_dir).to_path_buf()
+            } else {
+                bin_dir
+            },
+        }
+    }
+}
+
+impl Configurable for GlobalUser {
+    fn store(&self, path: PathBuf) -> bool {
+        if !path.exists() {
+            return false;
+        }
+        let mut f = File::create(path.to_str().expect("Could not convert global_user path to string.")).expect("Could not create file for global_user config serialization.");
+        let ser = ::serde_json::to_string(self).expect("Could not serialize global_user configuration data.");
+        
+        #[allow(dead_code)]
+        let rst = f.write(ser.as_bytes());
+        if let Ok(res) = rst {
+            if res != 0 {
+                true
+            } else {
+                false
+            }
+        } else {
+            false
+        }
+    }
+    fn retrieve(path: PathBuf) -> GlobalUser {
+        let mut open = File::open(path.to_str().expect("Could not convert global_user path to a string."));
+        match open {
+            Ok(mut f) => {
+                let mut buffer: String = String::new();
+                f.read_to_string(&mut buffer);
+                let user: GlobalUser = ::serde_json::from_str(&mut buffer).expect("Could not deserialize global_user configuration data.");
+                user
+            },
+            Err(_) => {
+                let user: GlobalUser = GlobalUser::blank();
+                user.store(path);
+                user
+            }
+        }
+    }
+    fn parse_vars(&mut self) {
+        
+    }
+}
+
+impl GlobalInstall {
+    pub fn blank() -> GlobalInstall {
+        let os = OperatingSystem::new();
+        GlobalInstall {
+            user_dir: {
+                // TODO: if linux make more specific default paths using the os_type crate
+                let mut dir = env::home_dir().expect("Could not find user directory.");
+                dir.push("proman");
+                dir
+            },
+            // install_path: PathBuf::from(::structures::DEFAULT_INSTALL_PATH),
+            install_path: PathBuf::from(os.get_install_path()),
+            install_bin_path: {
+                let mut dir = PathBuf::from(os.get_install_path());
+                dir.push("bin");
+                dir
+            },
+            os,
+        }
+    }
+    pub fn new(user_dir: PathBuf, install_path: PathBuf) -> GlobalInstall {
+        GlobalInstall {
+            user_dir: user_dir.clone(),
+            install_path: install_path.clone(),
+            install_bin_path: {
+                let mut dir = install_path.clone();
+                dir.push("bin");
+                dir
+            },
+            os: OperatingSystem::new(),
+        }
+    }
+}
+
+impl Configurable for GlobalInstall {
+    fn store(&self, path: PathBuf) -> bool {
+        if !path.exists() {
+            return false;
+        }
+        let mut f = File::create(path.to_str().expect("Could not convert global_install path to string.")).expect("Could not create file for global_install config serialization.");
+        let ser = ::serde_json::to_string(self).expect("Could not serialize global_install configuration data.");
+        
+        #[allow(dead_code)]
+        let rst = f.write(ser.as_bytes());
+        if let Ok(res) = rst {
+            if res != 0 {
+                true
+            } else {
+                false
+            }
+        } else {
+            false
+        }
+    }
+    fn retrieve(path: PathBuf) -> GlobalInstall {
+        let mut open = File::open(path.to_str().expect("Could not convert global_install path to a string."));
+        match open {
+            Ok(mut f) => {
+                let mut buffer: String = String::new();
+                f.read_to_string(&mut buffer);
+                let install: GlobalInstall = ::serde_json::from_str(&mut buffer).expect("Could not deserialize global_install configuration data.");
+                install
+            },
+            Err(_) => {
+                let install: GlobalInstall = GlobalInstall::blank();
+                install.store(path);
+                install
+            }
+        }
+    }
+    fn parse_vars(&mut self) {
+        
+    }
+}
 
 impl Configurable for Local {
     fn store(&self, path: PathBuf) -> bool {
@@ -108,17 +268,77 @@ impl Configurable for Local {
                 local
             },
             Err(_) => {
-                let local: Local = Local::new(path.parent().unwrap().to_path_buf());
+                // let local: Local = Local::new(path.parent().unwrap().to_path_buf());
+                let local: Local = Local::blank(path.parent().unwrap().to_path_buf());
                 local.store(path);
                 local
             }
         }
     }
     fn parse_vars(&mut self) {
-        
+        // TODO: implement this
     }
 }
 
+
+// TODO: Implement configurable for LocalCfg
+//          store(&self, PathBuf) -> bool  
+//          retrieve(PathBuf) -> Local
+//          parse_vars(&mut self)
+//
+// impl Configurable for LocalCfg {
+//  
+// }
+
+
+
+// pub fn find_proj_cfg(cd: PathBuf) -> Result<PathBuf, String> {
+//  
+//  
+// }
+
+
+// // pub fn configure<T: ::project::Project>(cd: PathBuf) -> Global<T> {
+// pub fn configure() -> Global {
+//     let cfg_dir_opt = find_proj_cfg(<cur_dir>);
+//     if let Ok(dir) = cfg_dir_opt {
+//      
+//      
+//     } else {
+//         panic!("Could not find configuration information.");
+//     }
+// }
+
+
+pub fn store_configs_blank(path: PathBuf) {
+    let mut dir: PathBuf;
+    let mut file: PathBuf;
+    if path.is_dir() {
+        dir = path;
+        file = dir.clone();
+        file.set_file_name("");
+    } else if path.is_file() {
+        file = path.clone();
+        dir = path.parent().unwrap_or(&path).to_path_buf();
+    } else {
+        panic!("Path is neither Directory nor File.");
+    }
+    let mut local: Local = Local::blank(dir);
+    let mut user: GlobalUser = GlobalUser::blank();
+    let mut install: GlobalInstall = GlobalInstall::blank();
+    // let mut global: Global {
+    //     local,
+    //     local_details: {
+    //         let proj_lang = local.language;
+    //         let proj_type = local.proj_type;
+    //     }
+    //     user,
+    //     install,
+    // }
+}
+
+
+// TODO: Implement Configurable for the config structs
 // impl Configurable for LocalCfg {
     
 // }

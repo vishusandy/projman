@@ -15,6 +15,9 @@
 // if needed create serialized blank config files
 // deserialize all config files
 
-
+// on install add the global install folder to the path
+// this allows the config file to be found anywhere
+// the GlobalInstall struct should specify where the
+// global user directory is located
 
 

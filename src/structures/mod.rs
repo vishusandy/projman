@@ -67,13 +67,48 @@ pub enum VersionInc {
 pub enum OperatingSystem {
     Windows64,
     Windows32,
-    Linux64,
     Linux32,
+    Linux64,
+    Mac32,
     Mac64,
+    Android32,
     Android64,
+    Unknown,
 }
 
 
+#[cfg(target_os = "macos")]
+static OPERATING_SYSTEM: &'static str = "Mac";
+#[cfg(target_os = "macos")]
+static DEFAULT_INSTALL_PATH: &'static str = "/Applications/proman";
+// #[cfg(target_os = "macos")]
+
+#[cfg(target_os = "linux")]
+static OPERATING_SYSTEM: &'static str = "Linux";
+#[cfg(target_os = "linux")]
+static DEFAULT_INSTALL_PATH: &'static str = "/usr/local/proman";
+
+#[cfg(target_os = "android")]
+static OPERATING_SYSTEM: &'static str = "Android";
+#[cfg(target_os = "android")]
+static DEFAULT_INSTALL_PATH: &'static str = "/data/data/proman";
+
+#[cfg(target_os = "windows")]
+static OPERATING_SYSTEM: &'static str = "Windows";
+#[cfg(target_os = "windows")]
+static DEFAULT_INSTALL_PATH: &'static str = r#"C:\Program Files\proman"#;
+
+// #[cfg(not(OPERATING_SYSTEM))]
+// static OPERATING_SYSTEM: &'static str = "Unknown";
+// #[cfg(not(DEFAULT_INSTALL_PATH))]
+// static DEFAULT_INSTALL_PATH: &'static str = "/proman";
+
+#[cfg(target_pointer_width = "32")]
+static ARCHITECTURE: u8 = 32;
+#[cfg(target_pointer_width = "64")]
+static ARCHITECTURE: u8 = 64;
+// #[cfg(not(ARCHITECTURE))]
+// static ARCHITECTURE: u8 = 0;
 
 // name is a little misleading, can also hold just a folder
 #[derive(Serialize, Deserialize, Debug)]
@@ -87,6 +122,96 @@ pub struct ExeDoc {
     doc: PathBuf,
     exe: Option<PathBuf>,
     run_str: Option<VarStr>,
+}
+
+impl OperatingSystem {
+    pub fn new() -> OperatingSystem {
+        match OPERATING_SYSTEM {
+            "Windows" => match ARCHITECTURE {
+                32 => OperatingSystem::Windows32,
+                64 => OperatingSystem::Windows64,
+                _ => OperatingSystem::Windows32,
+            },
+            "Mac" => match ARCHITECTURE {
+                32 => OperatingSystem::Mac32,
+                64 => OperatingSystem::Mac64,
+                _ => OperatingSystem::Mac32,
+            },
+            "Linux" => match ARCHITECTURE {
+                32 => OperatingSystem::Linux32,
+                64 => OperatingSystem::Linux64,
+                _ => OperatingSystem::Linux32,
+            },
+            "Anroid" => match ARCHITECTURE {
+                32 => OperatingSystem::Android32,
+                64 => OperatingSystem::Android64,
+                _ => OperatingSystem::Android32,
+            },
+            _ => OperatingSystem::Unknown,
+        }
+    }
+    pub fn to_str(&self) -> &'static str {
+        match *self {
+            OperatingSystem::Windows64 => "Windows64",
+             OperatingSystem::Windows32 => "Windows32",
+             OperatingSystem::Mac64 => "Mac64",
+             OperatingSystem::Mac32 => "Mac32",
+             OperatingSystem::Linux64 => "Linux64",
+             OperatingSystem::Linux32 => "Linux32",
+             OperatingSystem::Android64 => "Anroid64",
+             OperatingSystem::Android32 => "Android32",
+             OperatingSystem::Unknown => "Unknown",
+             _ => "Unknown",
+        }
+    }
+    pub fn install_path() -> PathBuf {
+        match OPERATING_SYSTEM {
+            // "Windows" if ARCHITECTURE == 32 => PathBuf::from(r#"C:\Program files (x86)"#),
+            "Windows" if ARCHITECTURE == 64 => PathBuf::from(r#"C:\Program files\proman"#),
+            _ => PathBuf::from(DEFAULT_INSTALL_PATH),
+        }
+    }
+    pub fn install_folder() -> PathBuf {
+        let mut dir: PathBuf = PathBuf::from(DEFAULT_INSTALL_PATH);
+        dir.parent().expect("Could not retrieve default install path.").to_path_buf()
+    }
+    pub fn architecture() -> u8 {
+        ARCHITECTURE
+    }
+    pub fn get_install_path(&self) -> PathBuf {
+        match *self {
+            OperatingSystem::Windows64 | OperatingSystem::Windows32 => PathBuf::from(r#"C:\Program Files\proman"#),
+            OperatingSystem::Linux64 | OperatingSystem::Linux32 => PathBuf::from(r#"/usr/local/proman"#),
+            OperatingSystem::Mac64 | OperatingSystem::Mac32 => PathBuf::from(r#"/Applications/proman"#),
+            OperatingSystem::Android64 | OperatingSystem::Android32 => PathBuf::from(r#"/data/data/proman"#),
+            OperatingSystem::Unknown => PathBuf::from("/proman"),
+            _ => PathBuf::from("/proman"),
+        }
+    }
+    pub fn get_install_folder(&self) -> PathBuf {
+        match *self {
+            OperatingSystem::Windows64 | OperatingSystem::Windows32 => PathBuf::from(r#"C:\Program Files\"#),
+            OperatingSystem::Linux64 | OperatingSystem::Linux32 => PathBuf::from(r#"/usr/local/"#),
+            OperatingSystem::Mac64 | OperatingSystem::Mac32 => PathBuf::from(r#"/Applications/"#),
+            OperatingSystem::Android64 | OperatingSystem::Android32 => PathBuf::from(r#"/data/data/"#),
+            OperatingSystem::Unknown => PathBuf::from("/"),
+            _ => PathBuf::from("/"),
+        }
+    }
+    pub fn get_architecture(&self) -> u8 {
+        match *self {
+            OperatingSystem::Windows64 => 64,
+            OperatingSystem::Windows32 => 32,
+            OperatingSystem::Linux64 => 64,
+            OperatingSystem::Linux32 => 32,
+            OperatingSystem::Mac64 => 64,
+            OperatingSystem::Mac32 => 32,
+            OperatingSystem::Android64 => 64,
+            OperatingSystem::Android32 => 32,
+            OperatingSystem::Unknown => if ARCHITECTURE == 0 { 32 } else { ARCHITECTURE },
+            _ => if ARCHITECTURE == 0 { 32 } else { ARCHITECTURE },
+        }
+    }
 }
 
 impl Language {

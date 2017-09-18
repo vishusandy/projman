@@ -8,12 +8,18 @@ extern crate rmp_serde as rmps;
 
 extern crate os_type;
 
-mod project;
+
+// mod configuration;
+// mod project;
+// mod structures;
+// mod manager;
+// mod helpers;
+
 mod configuration;
+mod project;
 mod structures;
 mod manager;
 mod helpers;
-
 
 use manager::*;
 
@@ -28,6 +34,20 @@ use std::ffi::OsString;
 
 fn main() {
     println!("Hello, world!");
+    println!("This is the `run` command!");
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }
+
+
 
 
