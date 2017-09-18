@@ -1,5 +1,5 @@
 
-pub fn split_string<'a>(arg: &'a str, debug: bool, preserve_space: bool) -> Vec<&'a str> {
+pub fn split_string<'a>(arg: &'a str) -> Vec<&'a str> {
     if arg.len() == 0 {
         return Vec::new();
     }

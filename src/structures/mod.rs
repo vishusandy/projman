@@ -19,7 +19,7 @@ use ::rmps::{Deserializer, Serializer};
 pub trait HasVars {
     fn list_vars(&self) -> Vec<String>;
     // fn replace_vars<T: ::configuration::storage::Configurable(&self) -> VarStr;
-    fn replace_vars<T: ::configuration::storage::Configurable(&self, T) -> VarStr;
+    fn replace_vars<T: ::configuration::storage::Configurable>(&self, T) -> VarStr;
     fn replace_custom<'a>(&self, HashMap<&'a str, &'a str>) -> VarStr;
 }
 pub trait Runnable {
@@ -111,7 +111,7 @@ impl Language {
         }
     }
     pub fn to_str(&self) -> &'static str {
-        match self {
+        match *self {
             Language::AutoHotKey => "autohotkey",
             Language::AutoIt => "autoit",
             Language::C => "c",
@@ -141,7 +141,7 @@ impl VersionControl {
         }
     }
     pub fn to_str(&self) -> &'static str {
-        match self {
+        match *self {
             VersionControl::Git => "git",
             VersionControl::Hg => "hg",
             VersionControl::Cvs => "cvs",
@@ -160,10 +160,11 @@ impl VersionInc {
         }
     }
     pub fn to_str(&self) -> &'static str {
-        match self {
+        match *self {
             VersionInc::Major => "major",
             VersionInc::Minor => "minor",
             VersionInc::Patch => "patch",
+            _ => "",
         }
     }
 }

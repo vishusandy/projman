@@ -19,15 +19,15 @@ use ::rmps::{Deserializer, Serializer};
 pub enum VarStr {
     Parsed(ParsedVar),
     Unparsed(UnparsedVar),
-    Error,
+    // Error,
 }
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ParsedVar {
-    string: String,
+    pub string: String,
 }
 #[derive(Serialize, Deserialize, Debug)]
 pub struct UnparsedVar {
-    string: String,
+    pub string: String,
 }
 
 impl VarStr {
@@ -40,19 +40,36 @@ impl VarStr {
     pub fn from(string: String) -> VarStr {
         VarStr::Unparsed( UnparsedVar { string: string } )
     }
+    pub fn from_str<'a>(string: &'a str) -> VarStr {
+        VarStr::Unparsed( UnparsedVar { string: string.to_string() } )
+    }
+    pub fn str<'a>(&self) -> &'a str {
+        match *self {
+            VarStr::Unparsed(var) => &var.string,
+            VarStr::Parsed(var) => &var.string,
+            // _ => "",
+        }
+    }
+    pub fn string(&self) -> String {
+        match *self {
+            VarStr::Unparsed(var) => var.string,
+            VarStr::Parsed(var) => var.string,
+            // _ => String::new(),
+        }
+    }
 }
 impl HasVars for VarStr {
     fn list_vars(&self) -> Vec<String> {
-        if let VarStr::Unparsed(unparsed) = self {
+        if let &VarStr::Unparsed(unparsed) = self {
             let string = unparsed.string;
             lazy_static! {
                 static ref VARS: Regex = Regex::new(r#"[[(.*?)]]"#).unwrap();
             }
             // this is -a [[test of "epic" proportions]] and [[more]]
             let mut found: Vec<String> = Vec::new();
-            for var in VARS.captures_iter(self) {
+            for var in VARS.captures_iter(self.str()) {
                 // if let Some() = caps.get(1 { }
-                found.push(&var[1].to_string());
+                found.push(var[1].to_string());
             }
             found
         } else {
@@ -61,7 +78,7 @@ impl HasVars for VarStr {
     }
     fn replace_vars<T: Configurable>(&self, cfg: T) -> VarStr {
         let list: Vec<String> = self.list_vars();
-        if let Unparsed(unparsed) = self {
+        if let &Unparsed(unparsed) = self {
             let string = unparsed.string;
             let mut new = string.clone();
             for var in list {
@@ -71,24 +88,26 @@ impl HasVars for VarStr {
                 // Method B: Provide a HashMap or Tuple Vector listing all variables
                 
                 // Method C: Match each var found to a specific field
-                let replace = match var.to_lowercase().as_str() {
-                    "lang" | "language" =>  "", //Global.local.proj_type.project_type(),
+                let replace: String = match var.to_lowercase().as_str() {
+                    "lang" | "language" =>  "".to_string(), //Global.local.proj_type.project_type(),
                     
                     // anything else
                     a => {
                         let mut original: String = String::with_capacity(var.len()+6);
                         original.push_str("[[");
-                        original.push_str(var);
+                        original.push_str(&var);
                         original.push_str("]]");
                         original
                     },
                 };
-                new.replace(&var, replace);
+                new.replace(&var, &replace);
                 
             }
-            
+            VarStr::Parsed(ParsedVar{
+                string: new
+            })
         } else {
-            self
+            *self
         }
     }
     fn replace_custom<'a>(&self, vars: HashMap<&'a str, &'a str>) -> VarStr {
