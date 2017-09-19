@@ -306,8 +306,8 @@ impl HasVars for VarStr {
                         },
                     }
                 }
-                
-                new.replace(&var, &replace);
+                println!("Replacing {} with {}", var, replace);
+                new = new.replace(&format!("[[{}]]", var), &replace);
                 
             }
             VarStr::Parsed(ParsedVar{
