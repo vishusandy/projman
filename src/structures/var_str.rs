@@ -141,7 +141,7 @@ impl HasVars for VarStr {
             self.clone()
         }
     }*/
-    fn replace_with<'a>(&self, vars: HashMap<&'a str, &'a str>) -> VarStr {
+    fn replace_with<'a>(&self, vars: &HashMap<&'a str, &'a str>) -> VarStr {
         let list: Vec<String> = self.list_vars();
         if let &Unparsed(ref unparsed) = self {
             let string = unparsed.string.clone();
@@ -306,7 +306,7 @@ impl HasVars for VarStr {
                         },
                     }
                 }
-                println!("Replacing {} with {}", var, replace);
+                // debug!("Replacing {} with {}", var, replace);
                 new = new.replace(&format!("[[{}]]", var), &replace);
                 
             }

@@ -20,7 +20,7 @@ pub trait HasVars {
     fn list_vars(&self) -> Vec<String>;
     // fn replace_vars<T: ::configuration::storage::Configurable(&self) -> VarStr;
     // fn replace_vars<T: ::configuration::storage::Configurable>(&self, T) -> VarStr;
-    fn replace_with<'a>(&self, HashMap<&'a str, &'a str>) -> VarStr;
+    fn replace_with<'a>(&self, &HashMap<&'a str, &'a str>) -> VarStr;
 }
 pub trait Runnable {
     fn exists(&self) -> bool;

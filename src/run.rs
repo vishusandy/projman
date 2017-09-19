@@ -45,7 +45,26 @@ mod tests {
     use std::collections::HashMap;
     // use structures::*;
     // use structures::var_str::*;
+    use std::sync::Mutex;
+
+    lazy_static! {
+        // static ref REPS: Mutex<HashMap<&'static str, &'static str>> = {
+        static ref REPS: HashMap<&'static str, &'static str> = {
+            // let replacements: HashMap<&'static str, &'static str>;
+            let mut reps = HashMap::new();
+            reps.insert("proj_type", "Rust.Binary");
+            reps.insert("language", "Rust");
+            reps.insert("proj_dir", r#"c:\code\proj\protest"#);
+            reps.insert("smh", "shake_my_head");
+            // replacements = reps;
+            // replacements
+            reps
+            // Mutex::new(reps)
+        };
+    }
     
+    
+    // set RUST_TEST_NOCAPTURE=1
     #[test]
     fn print_replace_with() {
         let mut reps: HashMap<&str, &str> = HashMap::new();
@@ -55,7 +74,7 @@ mod tests {
         reps.insert("smh", "shake_my_head");
         // reps.insert("", "");
         // reps.insert("", "");
-        println!("Result1: {}", VarStr::from_str("-a [[smh]] -b [[proj_type]] -c [[language]] -d [[proj_dir]]").replace_with(reps).string());
+        println!("Result1: {}", VarStr::from_str("-a [[smh]] -b [[proj_type]] -c [[language]] -d [[proj_dir]]").replace_with(&reps).string());
         
     }
     #[test]
@@ -70,13 +89,29 @@ mod tests {
         // reps.insert("", "");
         // reps.insert("", "");
         let vs: VarStr = VarStr::from_str(test);
-        let vs2: VarStr = vs.replace_with(reps);
+        let vs2: VarStr = vs.replace_with(&reps);
         println!("Original str: {}", test);
         println!("Replaced str: {}", vs2.string());
-        println!("Replace Result: \n{:?}", vs2);
+        // println!("Replace Result: \n{:?}", vs2);
         assert_eq!(vs2.string(), result);
     }
-
+    #[test]
+    fn test_replace_with_arg() {
+        let test = "-a [[arg:*]] -b [[arg:0]] -c [[arg:1]] -d [[arg:-b]] -e [[arg:-s,--some]] -f [[env:2]]";
+        let result = "";
+        let vs: VarStr = VarStr::from_str(test);
+        let rst: VarStr = vs.replace_with(&REPS);
+        println!("Original str: {}\nReplaced str: {}", test, rst.string());
+        // assert_eq!(test, rst.string());
+    }
+    // fn test_replace_with_arg2() {
+    //     let test = "";
+    //     let result = "";
+    //     let vs: VarStr = VarStr::from_str(test);
+    //     let rst: VarStr = vs.replace_with(REPS);
+    //     println!("Original str: {}\nReplaced str: {}", test, rst.string());
+    //     assert_eq!(test, rst.string());
+    // }
 }
 
 fn main() {
