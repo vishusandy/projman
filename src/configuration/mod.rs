@@ -51,6 +51,14 @@ pub struct GlobalInstall {
 }
 
 // pub struct Global<T: ::configuration::storage::Configurable> {
+
+// The Global struct holds all the config files/config data
+// it should implement Configurable but only to find out where
+// to store/retrieve each file and call the appropriate
+// serialization/deserialzation (store/retrieve) method on the
+// related struct.
+// The parse_vars() method should only call the parse_vars()
+// method on each of the config structs inside it.
 pub struct Global<T: ::project::Project> {
     local: Local,
     local_details: T,

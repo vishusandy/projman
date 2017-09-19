@@ -511,6 +511,16 @@ impl Configurable for Local {
 }
 
 
+
+impl Global<T: ::project::Project> {
+    
+}
+
+// impl Configurable for Global<T: ::project::Project> {
+    
+// }
+
+
 // TODO: Implement configurable for LocalCfg
 //          store_json(&self, PathBuf) -> bool  
 //          retrieve_json(PathBuf) -> Local
