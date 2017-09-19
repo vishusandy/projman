@@ -1,5 +1,7 @@
 
-
+Add msgpack serialization/deserialization methods for the
+    Configurable trait for the following structs:
+    GlobalInstall, GlobalUser, and Local
 
 Improve error handling, replace expects and unwraps in the 
     Configurable implementations with actual error handling
