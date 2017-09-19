@@ -5,6 +5,7 @@ extern crate serde_json;
 extern crate regex;
 extern crate semver;
 extern crate rmp_serde as rmps;
+extern crate serde_yaml;
 
 extern crate os_type;
 

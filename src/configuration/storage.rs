@@ -16,8 +16,12 @@ use structures::defaults::{DEFAULT_VCS, DEFAULT_VERSION_INC, DEFAULT_LANGUAGE};
 use ::structures::OperatingSystem;
 
 pub trait Configurable {
-    fn store(&self, PathBuf) -> bool;
-    fn retrieve(PathBuf) -> Self;
+    // fn store_msgpack(&self, PathBuf) -> bool;
+    // fn retrieve_msgpack(PathBuf) -> Self;
+    fn store_yaml(&self, PathBuf) -> bool;
+    fn retrieve_yaml(PathBuf) -> Self;
+    fn store_json(&self, PathBuf) -> bool;
+    fn retrieve_json(PathBuf) -> Self;
     fn parse_vars(&mut self);
 }
 
@@ -130,7 +134,44 @@ impl GlobalUser {
 }
 
 impl Configurable for GlobalUser {
-    fn store(&self, path: PathBuf) -> bool {
+    fn store_yaml(&self, path: PathBuf) -> bool {
+        // if !path.exists() {
+        //     println!("Path `{}` does not exist!", path.display());
+        //     return false;
+        // }
+        let mut f = File::create(path.to_str().expect("Could not convert global_user path to string.")).expect("Could not create file for global_user config serialization.");
+        // let ser = ::serde_json::to_string(self).expect("Could not serialize global_user configuration data.");
+        let ser = ::serde_yaml::to_string(self).expect("Could not serialize yaml configuration data.");
+        #[allow(dead_code)]
+        let rst = f.write(ser.as_bytes());
+        if let Ok(res) = rst {
+            if res != 0 {
+                true
+            } else {
+                false
+            }
+        } else {
+            false
+        }
+    }
+    fn retrieve_yaml(path: PathBuf) -> GlobalUser {
+        let mut open = File::open(path.to_str().expect("Could not convert global_user path to a string."));
+        match open {
+            Ok(mut f) => {
+                let mut buffer: String = String::new();
+                f.read_to_string(&mut buffer);
+                // let user: GlobalUser = ::serde_json::from_str(&mut buffer).expect("Could not deserialize global_user configuration data.");
+                let user: GlobalUser = ::serde_yaml::from_str(&buffer).expect("Could not deserialize yaml configuration data.");
+                user
+            },
+            Err(_) => {
+                let user: GlobalUser = GlobalUser::blank();
+                user.store_yaml(path);
+                user
+            }
+        }
+    }
+    fn store_json(&self, path: PathBuf) -> bool {
         // if !path.exists() {
         //     println!("Path `{}` does not exist!", path.display());
         //     return false;
@@ -150,7 +191,7 @@ impl Configurable for GlobalUser {
             false
         }
     }
-    fn retrieve(path: PathBuf) -> GlobalUser {
+    fn retrieve_json(path: PathBuf) -> GlobalUser {
         let mut open = File::open(path.to_str().expect("Could not convert global_user path to a string."));
         match open {
             Ok(mut f) => {
@@ -161,7 +202,7 @@ impl Configurable for GlobalUser {
             },
             Err(_) => {
                 let user: GlobalUser = GlobalUser::blank();
-                user.store(path);
+                user.store_json(path);
                 user
             }
         }
@@ -206,7 +247,28 @@ impl GlobalInstall {
 }
 
 impl Configurable for GlobalInstall {
-    fn store(&self, path: PathBuf) -> bool {
+    fn store_yaml(&self, path: PathBuf) -> bool {
+        // if !path.exists() {
+        //     println!("Path `{}` does not exist!", path.display());
+        //     return false;
+        // }
+        let mut f = File::create(path.to_str().expect("Could not convert global_install path to string.")).expect("Could not create file for global_install config serialization.");
+        // let ser = ::serde_json::to_string(self).expect("Could not serialize global_install configuration data.");
+        let ser = ::serde_yaml::to_string(self).expect("Could not serialize yaml configuration data.");
+        
+        #[allow(dead_code)]
+        let rst = f.write(ser.as_bytes());
+        if let Ok(res) = rst {
+            if res != 0 {
+                true
+            } else {
+                false
+            }
+        } else {
+            false
+        }
+    }
+    fn store_json(&self, path: PathBuf) -> bool {
         // if !path.exists() {
         //     println!("Path `{}` does not exist!", path.display());
         //     return false;
@@ -226,7 +288,24 @@ impl Configurable for GlobalInstall {
             false
         }
     }
-    fn retrieve(path: PathBuf) -> GlobalInstall {
+    fn retrieve_yaml(path: PathBuf) -> GlobalInstall {
+        let mut open = File::open(path.to_str().expect("Could not convert global_install path to a string."));
+        match open {
+            Ok(mut f) => {
+                let mut buffer: String = String::new();
+                f.read_to_string(&mut buffer);
+                // let install: GlobalInstall = ::serde_json::from_str(&mut buffer).expect("Could not deserialize global_install configuration data.");
+                let install: GlobalInstall = ::serde_yaml::from_str(&buffer).expect("Could not deserialize yaml configuration data.");
+                install
+            },
+            Err(_) => {
+                let install: GlobalInstall = GlobalInstall::blank();
+                install.store_yaml(path);
+                install
+            }
+        }
+    }
+    fn retrieve_json(path: PathBuf) -> GlobalInstall {
         let mut open = File::open(path.to_str().expect("Could not convert global_install path to a string."));
         match open {
             Ok(mut f) => {
@@ -237,7 +316,7 @@ impl Configurable for GlobalInstall {
             },
             Err(_) => {
                 let install: GlobalInstall = GlobalInstall::blank();
-                install.store(path);
+                install.store_json(path);
                 install
             }
         }
@@ -248,7 +327,25 @@ impl Configurable for GlobalInstall {
 }
 
 impl Configurable for Local {
-    fn store(&self, path: PathBuf) -> bool {
+    fn store_yaml(&self, path: PathBuf) -> bool {
+        let mut f = File::create(path.to_str().expect("Could not convert path to string.")).expect("Could not create file for config serialization.");
+        
+        // let ser = ::serde_json::to_string(self).expect("Could not serialize configuration data.");
+        let ser = ::serde_yaml::to_string(self).expect("Could not serialize yaml configuration data.");
+        
+        #[allow(dead_code)]
+        let rst = f.write(ser.as_bytes());
+        if let Ok(res) = rst {
+            if res != 0 {
+                true
+            } else {
+                false
+            }
+        } else {
+            false
+        }
+    }
+    fn store_json(&self, path: PathBuf) -> bool {
         // if !path.exists() {
         //     println!("Path `{}` does not exist!", path.display());
         //     return false;
@@ -268,7 +365,27 @@ impl Configurable for Local {
             false
         }
     }
-    fn retrieve(path: PathBuf) -> Local {
+    fn retrieve_yaml(path: PathBuf) -> Local {
+        let mut open = File::open(path.to_str().expect("Could not convert path to a string."));
+        match open {
+            Ok(mut f) => {
+                let mut buffer: String = String::new();
+                f.read_to_string(&mut buffer);
+                
+                // let local: Local = ::serde_json::from_str(&mut buffer).expect("Could not deserialize configuration data.");
+                let local: Local = ::serde_yaml::from_str(&buffer).expect("Could not deserialize yaml configuration data.");
+                
+                local
+            },
+            Err(_) => {
+                // let local: Local = Local::new(path.parent().unwrap().to_path_buf());
+                let local: Local = Local::blank(path.parent().unwrap().to_path_buf());
+                local.store_yaml(path);
+                local
+            }
+        }
+    }
+    fn retrieve_json(path: PathBuf) -> Local {
         let mut open = File::open(path.to_str().expect("Could not convert path to a string."));
         match open {
             Ok(mut f) => {
@@ -280,7 +397,7 @@ impl Configurable for Local {
             Err(_) => {
                 // let local: Local = Local::new(path.parent().unwrap().to_path_buf());
                 let local: Local = Local::blank(path.parent().unwrap().to_path_buf());
-                local.store(path);
+                local.store_json(path);
                 local
             }
         }
@@ -292,8 +409,8 @@ impl Configurable for Local {
 
 
 // TODO: Implement configurable for LocalCfg
-//          store(&self, PathBuf) -> bool  
-//          retrieve(PathBuf) -> Local
+//          store_json(&self, PathBuf) -> bool  
+//          retrieve_json(PathBuf) -> Local
 //          parse_vars(&mut self)
 //
 // impl Configurable for LocalCfg {
@@ -372,18 +489,18 @@ pub mod Debug {
         
         println!("-----STORE'd Results-----");
         if !install_path.exists() {
-            println!("Install Config Store: {:?}" , install.store(install_path.clone()));
+            println!("Install Config Store: {:?}" , install.store_yaml(install_path.clone()));
         } else {
             println!("Install Config Exists, skipping as it requires admin privileges. ");
         }
-        println!("User Config Store: {:?}" , user.store(user_path.clone()));
-        println!("Local Config Store: {:?}" , local.store(local_path.clone()));
+        println!("User Config Store: {:?}" , user.store_yaml(user_path.clone()));
+        println!("Local Config Store: {:?}" , local.store_yaml(local_path.clone()));
         
         
         println!("-----RETRIEVE'd Results-----");
-        let install_get = GlobalInstall::retrieve(PathBuf::from(install_path.clone()));
-        let user_get = GlobalUser::retrieve(PathBuf::from(user_path.clone()));
-        let local_get = Local::retrieve(PathBuf::from(local_path.clone()));
+        let install_get = GlobalInstall::retrieve_yaml(PathBuf::from(install_path.clone()));
+        let user_get = GlobalUser::retrieve_yaml(PathBuf::from(user_path.clone()));
+        let local_get = Local::retrieve_yaml(PathBuf::from(local_path.clone()));
         
         println!("-----RETRIEVE'd Data-----");
         println!("Global InstallGet Config: {:?}", install_get);
