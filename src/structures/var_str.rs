@@ -168,11 +168,12 @@ impl HasVars for VarStr {
                         let all_args: Vec<String> = env::args().collect();
                         // let all_args = remove_flags(&env_args);
                         let arg_str = all_args.join(" ");
-                        let replace = arg_str;
+                        println!("Joined args into `{}`", arg_str);
+                        replace = arg_str;
                         
                     // } else if IS_NUMERIC.is_match(&var[4..].trim()) {
                     } else if IS_NUMERIC.is_match(argument) {
-                        let num_result = var.parse::<u8>();
+                        let num_result = (&var[4..]).trim().parse::<u8>();
                         match num_result {
                             Ok(num) => {
                                 // let all_args: Vec<String> = env::args().collect();
@@ -274,16 +275,17 @@ impl HasVars for VarStr {
                     let all_args = remove_flags(&env_args);
                     let argument = &var.trim()[4..].trim();
                     if IS_NUMERIC.is_match(argument) {
-                        let num_raw = var.parse::<u8>();
+                        let num_raw = (&var[4..]).trim().parse::<u8>();
                         match num_raw{
                             Ok(num) => {
                                 if ((num+1) as usize) < all_args.len() {
                                     replace = all_args[((num+1) as usize)].to_string();
                                 }
                             },
-                            _ => {},
+                            _ => { println!("env:# Index too large") },
                         }
                     } else {
+                        // check if an env variable exist and use that
                         match env::var(argument) {
                             Ok(val) => {
                                 replace = val;
@@ -293,7 +295,6 @@ impl HasVars for VarStr {
                             }
                         }
                     }
-                    // check if an env variable exist and use that
                 } else {
                     // let lower = var.to_lowercase();
                     let lower = var.trim().to_lowercase();
