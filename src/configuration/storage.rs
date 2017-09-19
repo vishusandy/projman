@@ -131,9 +131,10 @@ impl GlobalUser {
 
 impl Configurable for GlobalUser {
     fn store(&self, path: PathBuf) -> bool {
-        if !path.exists() {
-            return false;
-        }
+        // if !path.exists() {
+        //     println!("Path `{}` does not exist!", path.display());
+        //     return false;
+        // }
         let mut f = File::create(path.to_str().expect("Could not convert global_user path to string.")).expect("Could not create file for global_user config serialization.");
         let ser = ::serde_json::to_string(self).expect("Could not serialize global_user configuration data.");
         
@@ -206,9 +207,10 @@ impl GlobalInstall {
 
 impl Configurable for GlobalInstall {
     fn store(&self, path: PathBuf) -> bool {
-        if !path.exists() {
-            return false;
-        }
+        // if !path.exists() {
+        //     println!("Path `{}` does not exist!", path.display());
+        //     return false;
+        // }
         let mut f = File::create(path.to_str().expect("Could not convert global_install path to string.")).expect("Could not create file for global_install config serialization.");
         let ser = ::serde_json::to_string(self).expect("Could not serialize global_install configuration data.");
         
@@ -247,9 +249,10 @@ impl Configurable for GlobalInstall {
 
 impl Configurable for Local {
     fn store(&self, path: PathBuf) -> bool {
-        if !path.exists() {
-            return false;
-        }
+        // if !path.exists() {
+        //     println!("Path `{}` does not exist!", path.display());
+        //     return false;
+        // }
         let mut f = File::create(path.to_str().expect("Could not convert path to string.")).expect("Could not create file for config serialization.");
         let ser = ::serde_json::to_string(self).expect("Could not serialize configuration data.");
         
