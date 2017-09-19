@@ -16,3 +16,24 @@ Make a parameter on the deserialization functions & Configurable
 Improve error handling, replace expects and unwraps in the 
     Configurable implementations with actual error handling
 
+
+
+
+
+
+
+
+
+
+
+
+NOTES:
+
+in VarStr's replace_with() method the string [[env:2]] is not looked for
+    however [[arg:2]] is and does the exact same thing, since arg:2
+    looks for that argument number, and env:2 looks for an argument number.
+Change behavior of arg:2 to remove all flags from the vector before doing
+    a lookup on that number, thus not counting flags in the lookup but only
+    counting arguments, not flags.
+    
+maybe add a __ prefix that sjpild be skipped if present in an env var
