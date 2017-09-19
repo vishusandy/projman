@@ -246,10 +246,18 @@ impl HasVars for VarStr {
                     }
                     
                 } else if var.starts_with("env:") {
+                    let all_args: Vec<String> = env::args().collect();
                     let argument = &var.trim()[4..].trim();
                     if IS_NUMERIC.is_match(argument) {
-                        let num = var.parse::<u8>();
-                        
+                        let num_raw = var.parse::<u8>();
+                        match num_raw{
+                            Ok(num) => {
+                                if ((num+1) as usize) < all_args.len() {
+                                    replace = all_args[((num+1) as usize)].to_string();
+                                }
+                            },
+                            _ => {},
+                        }
                     } else {
                         match env::var(argument) {
                             Ok(val) => {
