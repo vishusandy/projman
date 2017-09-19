@@ -337,50 +337,71 @@ impl Configurable for Local {
     // let mut user: GlobalUser = GlobalUser::blank();
     // let mut install: GlobalInstall = GlobalInstall::blank();
     
-    
-pub fn store_configs_blank() {
-    let install_path = PathBuf::from(r#"c:\program files\proman\install.cfg"#);
-    let user_path = PathBuf::from(r#"c:\users\Andrew\proman\user.cfg"#);
-    let local_path = PathBuf::from(r#"c:\code\proj\protest\proman.cfg"#);
-    
-    // let install_new = GlobalInstall::blank();
-    // let user_new = GlobalUser::blank();
-    // let local_new = Local::blank(local_path);
-    let install = GlobalInstall::blank();
-    let user = GlobalUser::blank();
-    let local = Local::blank(local_path.clone());
-    
-    println!("-----BLANK'd Data-----");
-    println!("Global Install Config: {:?}", install);
-    println!("Global User Config: {:?}", user);
-    println!("Local Pojrect Config: {:?}", local);
-    
-    println!("-----STORE'd Results-----");
-    println!("Install Config Store: {:?}" , install.store(install_path.clone()));
-    println!("User Config Store: {:?}" , user.store(user_path.clone()));
-    println!("Local Config Store: {:?}" , local.store(local_path.clone()));
-    
-    
-    println!("-----RETRIEVE'd Results-----");
-    let install_get = GlobalInstall::retrieve(PathBuf::from(install_path.clone()));
-    let user_get = GlobalUser::retrieve(PathBuf::from(user_path.clone()));
-    let local_get = Local::retrieve(PathBuf::from(local_path.clone()));
-    
-    println!("-----RETRIEVE'd Data-----");
-    println!("Global InstallGet Config: {:?}", install_get);
-    println!("Global UserGet Config: {:?}", user_get);
-    println!("Local PojrectGet Config: {:?}", local_get);
-    
-    
-    // let mut global: Global {
-    //     local,
-    //     local_details: {
-    //         let proj_lang = local.language;
-    //         let proj_type = local.proj_type;
-    //     }
-    //     user,
-    //     install,
-    // }
+pub mod Debug {
+    use std::path::{Path, PathBuf};
+    use std::ffi::OsStr;
+    use std::fs::File;
+    use std::io::{Write, Read};
+    use ::serde::{Deserialize, Serialize};
+    use ::rmps::{Deserializer, Serializer};
+    use serde_json::Error;
+    use std::env;
+
+    use super::*;
+    // use structures::*;
+    use structures::defaults::{DEFAULT_VCS, DEFAULT_VERSION_INC, DEFAULT_LANGUAGE};
+    // use ::strucutres::{DEFAULT_INSTALL_PATH, OPERATING_SYSTEM, ARCHITECTURE};
+    use ::structures::OperatingSystem;
+
+    pub fn store_configs_blank() {
+        let install_path = PathBuf::from(r#"c:\program files\proman\install.cfg"#);
+        let user_path = PathBuf::from(r#"c:\users\Andrew\proman\user.cfg"#);
+        let local_path = PathBuf::from(r#"c:\code\proj\protest\proman.cfg"#);
+        
+        // let install_new = GlobalInstall::blank();
+        // let user_new = GlobalUser::blank();
+        // let local_new = Local::blank(local_path);
+        let install = GlobalInstall::blank();
+        let user = GlobalUser::blank();
+        let local = Local::blank(local_path.clone());
+        
+        println!("-----BLANK'd Data-----");
+        println!("Global Install Config: {:?}", install);
+        println!("Global User Config: {:?}", user);
+        println!("Local Pojrect Config: {:?}", local);
+        
+        println!("-----STORE'd Results-----");
+        if !install_path.exists() {
+            println!("Install Config Store: {:?}" , install.store(install_path.clone()));
+        } else {
+            println!("Install Config Exists, skipping as it requires admin privileges. ");
+        }
+        println!("User Config Store: {:?}" , user.store(user_path.clone()));
+        println!("Local Config Store: {:?}" , local.store(local_path.clone()));
+        
+        
+        println!("-----RETRIEVE'd Results-----");
+        let install_get = GlobalInstall::retrieve(PathBuf::from(install_path.clone()));
+        let user_get = GlobalUser::retrieve(PathBuf::from(user_path.clone()));
+        let local_get = Local::retrieve(PathBuf::from(local_path.clone()));
+        
+        println!("-----RETRIEVE'd Data-----");
+        println!("Global InstallGet Config: {:?}", install_get);
+        println!("Global UserGet Config: {:?}", user_get);
+        println!("Local PojrectGet Config: {:?}", local_get);
+        
+        
+        // let mut global: Global {
+        //     local,
+        //     local_details: {
+        //         let proj_lang = local.language;
+        //         let proj_type = local.proj_type;
+        //     }
+        //     user,
+        //     install,
+        // }
+    }
+
 }
 
 
