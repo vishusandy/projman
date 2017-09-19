@@ -1,13 +1,17 @@
 extern crate serde;
-extern crate serde_json;
 #[macro_use] extern crate serde_derive;
-#[macro_use] extern crate lazy_static;
-extern crate regex;
-extern crate semver;
+extern crate serde_json;
 extern crate rmp_serde as rmps;
 extern crate serde_yaml;
 
+#[macro_use] extern crate log;
+extern crate env_logger;
+
+#[macro_use] extern crate lazy_static;
+
 extern crate os_type;
+extern crate regex;
+extern crate semver;
 
 
 // mod configuration;
@@ -34,6 +38,10 @@ use std::ffi::OsString;
 
 
 fn main() {
+    
+    // error, warn, info, debug, trace
+    env_logger::init();
+    
     println!("Hello, world!");
     println!("This is the `run` command!");
     

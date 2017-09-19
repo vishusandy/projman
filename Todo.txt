@@ -2,6 +2,16 @@
 Add msgpack serialization/deserialization methods for the
     Configurable trait for the following structs:
     GlobalInstall, GlobalUser, and Local
+    
+Create a setting called abort_on_fail: bool
+Make it so that if one AutoRun fails with abort_on_fail == true
+    then no more autoruns are ran, and the original executing
+    function will not execute
+    
+Make a parameter on the deserialization functions & Configurable
+    trait that is a bool which indicates if the file should be
+    created if it is not found.  Maybe make deserialization
+    functions return a Result.
 
 Improve error handling, replace expects and unwraps in the 
     Configurable implementations with actual error handling

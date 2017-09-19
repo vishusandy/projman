@@ -76,7 +76,7 @@ impl HasVars for VarStr {
         if let &VarStr::Unparsed(ref unparsed) = self {
             let string = unparsed.string.clone();
             lazy_static! {
-                static ref VARS: Regex = Regex::new(r#"[[(.*?)]]"#).unwrap();
+                static ref VARS: Regex = Regex::new(r#"\[\[(.*?)\]\]"#).unwrap();
             }
             // this is -a [[test of "epic" proportions]] and [[more]]
             let mut found: Vec<String> = Vec::new();
@@ -89,7 +89,10 @@ impl HasVars for VarStr {
             Vec::new()
         }
     }
-    fn replace_vars<T: Configurable>(&self, cfg: T) -> VarStr {
+    
+    // fn replace_vars<T: Configurable>(&self, cfg: T) -> VarStr {
+    
+    /*fn replace_vars<T: Configurable>(&self, ) -> VarStr {
         let list: Vec<String> = self.list_vars();
         if let &Unparsed(ref unparsed) = self {
             let string = unparsed.string.clone();
@@ -122,13 +125,168 @@ impl HasVars for VarStr {
         } else {
             self.clone()
         }
-    }
-    fn replace_custom<'a>(&self, vars: HashMap<&'a str, &'a str>) -> VarStr {
-        
-        // TODO: actually implement this
-        VarStr::Unparsed( UnparsedVar {
-            string: String::new()
-        })
+    }*/
+    fn replace_with<'a>(&self, vars: HashMap<&'a str, &'a str>) -> VarStr {
+        let list: Vec<String> = self.list_vars();
+        if let &Unparsed(ref unparsed) = self {
+            let string = unparsed.string.clone();
+            let mut new = string.clone();
+            // default behavior is to replace a [[...]] that does not
+            // match with a blank string, to leave the [[...]] in place
+            // uncomment out the: `continue 'varlist;` lines found below
+            lazy_static! {
+                static ref IS_NUMERIC: Regex = Regex::new(r#"^[0-9]{1,2}$"#).unwrap();
+            }
+            'varlist: for var in list {
+                // what is arg_t ?????
+                // current_dir / current_exe
+                // arg:3  or  arg:*  or  arg:-s  or arg:-s,--some,--thing
+                let mut replace: String = "".to_string();
+                // let replace: &str = if ...
+                if var.trim().starts_with("arg:") {
+                    let argument = &var.trim()[4..].trim();
+                    
+                    // if &var.trim()[4..] == "*" {
+                    if argument == &"*" {
+                        // entire command argument string
+                        let all_args: Vec<String> = env::args().collect();
+                        let arg_str = all_args.join(" ");
+                        let replace = arg_str;
+                        
+                    // } else if IS_NUMERIC.is_match(&var[4..].trim()) {
+                    } else if IS_NUMERIC.is_match(argument) {
+                        let num_result = var.parse::<u8>();
+                        match num_result {
+                            Ok(num) => {
+                                let all_args: Vec<String> = env::args().collect();
+                                if (num as usize) < all_args.len() {
+                                    replace = all_args[num as usize].clone();
+                                } else {
+                                    // continue 'varlist;
+                                }
+                            },
+                            _ => {
+                                // continue 'varlist;
+                            },
+                        }
+                    } else {
+                        let all_args: Vec<String> = env::args().collect();
+                        if argument.contains(",") {
+                            'argslist: for part_raw in argument.split(',') {
+                                let part = part_raw.trim();
+                                if !part.starts_with("-") {
+                                    // warn!("arg list item does not start with a -");
+                                    continue 'argslist;
+                                }
+                                // if all_args.contains()
+                                'argmatch: for idx in 1..all_args.len() {
+                                    if part.to_lowercase() == all_args[idx].to_lowercase() {
+                                        if idx+1 < all_args.len() {
+                                            replace = all_args[idx+1].clone();
+                                            break 'argmatch;
+                                        } else {
+                                            // warn!("arg `{}` found in arglist but is last item", part);
+                                            continue 'argslist;
+                                        }
+                                    }
+                                }
+                            }
+                        } else if argument.starts_with("-") {
+                            // let mut idx = 1;
+                            // for a in &all_args[1..] {
+                                // if argument == a {
+                            let mut matched: bool = false;
+                            'allargslist: for idx in 1..all_args.len() {
+                                if argument.to_lowercase() == all_args[idx].to_lowercase() {
+                                    if idx+1 < all_args.len() {
+                                        matched = true;
+                                        replace = all_args[idx+1].clone();
+                                        break 'allargslist;
+                                    } else {
+                                        // warn!("Argument `{}` found in env::args() but it is the last argument, so continuing..", argument);
+                                        // continue 'varlist;
+                                    }
+                                }
+                            }
+                            if !matched {
+                                // if the desired behavior when no match is found
+                                // is to replace the [[...]] with an empty string
+                                // leave this if section blank, otherwise if the
+                                // [[...]] should be left as is uncomment the line:
+                                // continue 'varlist;
+                            }
+                        } else {
+                            // error in the arg: format
+                            continue 'varlist;
+                        }
+                    }
+                } else if var.starts_with("flag:") {
+                    let all_args: Vec<String> = env::args().collect();
+                    let arguments = &var[5..].trim();
+                    if arguments.contains(",") {
+                        let mut matched: bool = false;
+                        'flaglist: for raw_argument in arguments.split(",") {
+                            // skip checking if the argument starts_with("-") to allow any argument not just flags to be found
+                            let argument = raw_argument.trim();
+                            if all_args.contains(&argument.to_string()) {
+                                matched = true;
+                                replace = "true".to_string();
+                                break 'flaglist;
+                            }
+                        }
+                        if !matched {
+                            replace = "false".to_string();
+                        }
+                    } else {
+                        if all_args.contains(&arguments.to_string()) {
+                            replace = "true".to_string();
+                        } else {
+                            replace = "false".to_string();
+                        }
+                    }
+                    
+                } else if var.starts_with("env:") {
+                    let argument = &var.trim()[4..].trim();
+                    if IS_NUMERIC.is_match(argument) {
+                        let num = var.parse::<u8>();
+                        
+                    } else {
+                        match env::var(argument) {
+                            Ok(val) => {
+                                replace = val;
+                            },
+                            Err(_) => {
+                                // continue 'varlist;
+                            }
+                        }
+                    }
+                    // check if an env variable exist and use that
+                } else {
+                    // let lower = var.to_lowercase();
+                    let lower = var.trim().to_lowercase();
+                    match vars.get(&lower.as_str()) {
+                        Some(val) => {
+                            replace = val.to_string();
+                        },
+                        _ => { 
+                            // continue 'varlist;
+                        },
+                    }
+                }
+                
+                new.replace(&var, &replace);
+                
+            }
+            VarStr::Parsed(ParsedVar{
+                string: new,
+            })
+        } else {
+            self.clone()
+        }
+        // // TODO: actually implement this
+        // VarStr::Unparsed( UnparsedVar {
+        //     string: String::new()
+        // })
         
         
     }

@@ -511,10 +511,14 @@ impl Configurable for Local {
 }
 
 
-
-impl Global<T: ::project::Project> {
+// TODO: Important: implement Global functions to
+//    deserialize/serialize the config files and
+//    find out what files are stored where according
+//    to the config struct fields
+// the <T: ..> may need to go after impl and before Global, look it up
+// impl Global<T: ::project::Project> {
     
-}
+// }
 
 // impl Configurable for Global<T: ::project::Project> {
     
