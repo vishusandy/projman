@@ -7,6 +7,7 @@ use std::io::{Write, Read};
 use ::serde::{Deserialize, Serialize};
 use ::rmps::{Deserializer, Serializer};
 use serde_json::Error;
+use std::collections::HashMap;
 use std::env;
 
 use super::*;
@@ -35,6 +36,7 @@ impl LocalCfg {
             project_name: self.project_name.clone(),
             proj_type: self.proj_type.clone(),
             autoruns: self.autoruns.clone(),
+            abort_on_fail: self.abort_on_fail,
             custom_commands: self.custom_commands.clone(),
         }
     }
@@ -48,7 +50,8 @@ impl LocalCfg {
             language: DEFAULT_LANGUAGE.to_str().to_string(),
             proj_type: String::from(""),
             autoruns: Vec::new(),
-            custom_commands: Vec::new(),
+            abort_on_fail: true,
+            custom_commands: HashMap::new(),
         }
     }
     
@@ -65,6 +68,7 @@ impl Local {
             project_name: self.project_name.clone(),
             proj_type: self.proj_type.clone(),
             autoruns: self.autoruns.clone(),
+            abort_on_fail: self.abort_on_fail,
             custom_commands: self.custom_commands.clone(),
         }
     }
@@ -84,7 +88,8 @@ impl Local {
             language: DEFAULT_LANGUAGE,
             proj_type: String::from(""),
             autoruns: Vec::new(),
-            custom_commands: Vec::new(),
+            abort_on_fail: true,
+            custom_commands: HashMap::new(),
         }
     }
     pub fn new(proj_path: PathBuf, proj_name: String, proj_lang: ::structures::Language, proj_type: String) -> Local {
@@ -103,7 +108,8 @@ impl Local {
             },
             language: proj_lang, // this must go after proj_type in order to prevent ownership error stuff etc
             autoruns: Vec::new(),
-            custom_commands: Vec::new(),
+            abort_on_fail: true,
+            custom_commands: HashMap::new(),
         }
     }
     

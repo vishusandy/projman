@@ -16,7 +16,8 @@ pub struct LocalCfg {
     language: String,
     proj_type: String,
     autoruns: Vec<String>,
-    custom_commands: Vec<String>,
+    abort_on_fail: bool,
+    custom_commands: HashMap<String, String>,
     
 }
 
@@ -30,7 +31,8 @@ pub struct Local {
     language: Language,
     proj_type: String,
     autoruns: Vec<String>,
-    custom_commands: Vec<String>, // if a command is specified that is already a command, it overrides that command
+    abort_on_fail: bool,
+    custom_commands: HashMap<String, String>, // if a command is specified that is already a command, it overrides that command
     
 }
 
