@@ -11,6 +11,7 @@ use super::*;
 use structures::var_str::VarStr::*;
 use std::collections::HashMap;
 use configuration::storage::Configurable;
+use std::ffi::OsStr;
 
 use ::serde::{Deserialize, Serialize};
 use ::rmps::{Deserializer, Serializer};
@@ -128,9 +129,35 @@ impl HasVars for VarStr {
                 }
                 if var.trim().starts_with("arg:") {
                     let argument = &var.trim()[4..].trim();
-                    if argument == &"$" {
-                        let all_args: Vec<String> = env::args().collect();
-                        replace = all_args[0].clone();
+                    if argument.trim() == "~" {
+                        let cur_proc = env::current_exe();
+                        match cur_proc {
+                            Ok(p) => {
+                                let path = p.clone();
+                                replace = format!("{}", path.display());
+                            },
+                            _ => {
+                                // println!("Current_exe() failed for ~, falling back");
+                                let all_args: Vec<String> = env::args().collect();
+                                replace = all_args[0].clone();
+                            },
+                        }
+                    } else if argument.trim() == "$" {
+                        // Display just the running process name
+                        // let all_args: Vec<String> = env::args().collect();
+                        // replace = all_args[0].clone();
+                        let cur_proc = env::current_exe();
+                        match cur_proc {
+                            Ok(p) => {
+                                let path = p.clone();
+                                replace = path.file_name().unwrap_or(OsStr::new("")).to_str().unwrap_or("").to_string();
+                            },
+                            _ => {
+                                // println!("Current_exe() failed for $, falling back");
+                                let all_args: Vec<String> = env::args().collect();
+                                replace = all_args[0].clone();
+                            },
+                        }
                     } else if argument == &"*" {
                         // entire command argument string
                         let all_args: Vec<String> = env::args().collect();
@@ -230,7 +257,33 @@ impl HasVars for VarStr {
                     let env_args: Vec<String> = env::args().collect();
                     let all_args = remove_flags(&env_args);
                     let argument = &var.trim()[4..].trim();
-                    if IS_NUMERIC.is_match(argument) {
+                    if argument.trim() == "~" {
+                        let cur_proc = env::current_exe();
+                        match cur_proc {
+                            Ok(p) => {
+                                let path = p.clone();
+                                replace = format!("{}", path.display());
+                            },
+                            _ => {
+                                // println!("Current_exe() failed for ~, falling back");
+                                let all_args: Vec<String> = env::args().collect();
+                                replace = all_args[0].clone();
+                            },
+                        }
+                    } else if argument.trim() == "$" {
+                        let cur_proc = env::current_exe();
+                        match cur_proc {
+                            Ok(p) => {
+                                let path = p.clone();
+                                replace = path.file_name().unwrap_or(OsStr::new("")).to_str().unwrap_or("").to_string();
+                            },
+                            _ => {
+                                // println!("Current_exe() failed for $, falling back");
+                                let all_args: Vec<String> = env::args().collect();
+                                replace = all_args[0].clone();
+                            },
+                        }
+                    } else if IS_NUMERIC.is_match(argument) {
                         let num_raw = (&var[4..]).trim().parse::<u8>();
                         match num_raw{
                             Ok(num) => {
