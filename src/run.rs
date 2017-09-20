@@ -138,7 +138,13 @@ fn main() {
     let rst: VarStr = vs.replace_with(&reps);
     println!("Original str: {}\nReplaced str: {}", test, rst.string());
     
+    // println!("--------------------");
+    println!("--------------------");
     
+    println!("Printing out env variables:");
+    for (key, val) in env::vars() {
+        println!("key: {key: <width$} val:{val}", key=key, width=15 , val=val);
+    }
     
     
     
