@@ -125,7 +125,26 @@ fn main() {
     println!("This is the `run` command!");
     
     // ::configuration::storage::Debug::store_configs_blank();
-    ::manager::managed_deserialize();
+    
+    let mut reps: HashMap<&str, &str> = HashMap::new();
+    reps.insert("proj_type", "Rust.Binary");
+    reps.insert("language", "Rust");
+    reps.insert("proj_dir", r#"c:\code\proj\protest"#);
+    reps.insert("smh", "shake_my_head");
+    
+    let test = "-c [[env:~]] - d [[env:$]] -a [[arg:~]] -b [[arg:$]] -z [[!flag: --some   ]] -y [[flag:  --something    ]] -x [[flag: -s   , --some    ]] -w [[!flag:  -a,    -b   ]] -a [[arg:$]] -b [[arg:0]] -c [[arg:1]] -d [[arg:-b]] -e [[arg:-s,--some]] -f [[env:2]] -g [[flag:-b]] - h [[!flag:-z,--some]] -i [[!flag:-z,--zinger]] -j [[language]]";
+    // let result = "";
+    let vs: VarStr = VarStr::from_str(test);
+    let rst: VarStr = vs.replace_with(&reps);
+    println!("Original str: {}\nReplaced str: {}", test, rst.string());
+    
+    // println!("--------------------");
+    println!("--------------------");
+    
+    // println!("Printing out env variables:");
+    // for (key, val) in env::vars() {
+    //     println!("key: {key: <width$} val:{val}", key=key, width=30 , val=val);
+    // }
     
     
     

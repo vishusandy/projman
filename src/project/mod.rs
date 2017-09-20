@@ -8,7 +8,7 @@ use ::rmps::{Deserializer, Serializer};
 
 // Implementors of Project trait must also implement Configurable to save/load the config data
 pub trait Project : ::configuration::storage::Configurable {
-    type B: Project; // collection of actions
+    type B: Project; // collection of actions, a Behavior
     
     fn language(&self) -> String;
     fn proj_type(&self) -> String;

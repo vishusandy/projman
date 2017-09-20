@@ -11,6 +11,10 @@ path = "src/main.rs"
 name = "run"
 path = "src/run.rs"
 
+[[bin]]
+name = "scratch"
+path = "src/scratch.rs"
+
 [dependencies]
 argparse = "0.2.*"
 env_logger = "0.4.3"

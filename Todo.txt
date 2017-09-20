@@ -1,9 +1,7 @@
-
-Add msgpack serialization/deserialization methods for the
-    Configurable trait for the following structs:
-    GlobalInstall, GlobalUser, and Local
     
-Create a setting called abort_on_fail: bool
+    
+    
+Implement the abort_on_fail variable for executing autoruns
 Make it so that if one AutoRun fails with abort_on_fail == true
     then no more autoruns are ran, and the original executing
     function will not execute
@@ -29,11 +27,8 @@ Improve error handling, replace expects and unwraps in the
 
 NOTES:
 
-in VarStr's replace_with() method the string [[env:2]] is not looked for
-    however [[arg:2]] is and does the exact same thing, since arg:2
-    looks for that argument number, and env:2 looks for an argument number.
-Change behavior of arg:2 to remove all flags from the vector before doing
-    a lookup on that number, thus not counting flags in the lookup but only
-    counting arguments, not flags.
     
 maybe add a __ prefix that sjpild be skipped if present in an env var
+    or maybe add a list of env vars to skip in the
+    GlobalInstall / GlobalUser structs
+
