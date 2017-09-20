@@ -132,7 +132,7 @@ fn main() {
     reps.insert("proj_dir", r#"c:\code\proj\protest"#);
     reps.insert("smh", "shake_my_head");
     
-    let test = "-a [[arg:*]] -b [[arg:0]] -c [[arg:1]] -d [[arg:-b]] -e [[arg:-s,--some]] -f [[env:2]] -g [[flag:-b]] - h [[flag:-z,--some]] -i [[flag:-z,--zinger]] -j [[language]]";
+    let test = "-z [[!flag: --some   ]] -y [[flag:  --something    ]] -x [[flag: -s   , --some    ]] -w [[!flag:  -a,    -b   ]] -a [[arg:$]] -b [[arg:0]] -c [[arg:1]] -d [[arg:-b]] -e [[arg:-s,--some]] -f [[env:2]] -g [[flag:-b]] - h [[!flag:-z,--some]] -i [[!flag:-z,--zinger]] -j [[language]]";
     // let result = "";
     let vs: VarStr = VarStr::from_str(test);
     let rst: VarStr = vs.replace_with(&reps);

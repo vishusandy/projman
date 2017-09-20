@@ -105,42 +105,6 @@ impl HasVars for VarStr {
         }
     }
     
-    // fn replace_vars<T: Configurable>(&self, cfg: T) -> VarStr {
-    
-    /*fn replace_vars<T: Configurable>(&self, ) -> VarStr {
-        let list: Vec<String> = self.list_vars();
-        if let &Unparsed(ref unparsed) = self {
-            let string = unparsed.string.clone();
-            let mut new = string.clone();
-            for var in list {
-                // Method A: Add trait method to retrieve a variable
-                // cfg.get_var
-                
-                // Method B: Provide a HashMap or Tuple Vector listing all variables
-                
-                // Method C: Match each var found to a specific field
-                let replace: String = match var.to_lowercase().as_str() {
-                    "lang" | "language" =>  "".to_string(), //Global.local.proj_type.project_type(),
-                    
-                    // anything else
-                    a => {
-                        let mut original: String = String::with_capacity(var.len()+6);
-                        original.push_str("[[");
-                        original.push_str(&var);
-                        original.push_str("]]");
-                        original
-                    },
-                };
-                new.replace(&var, &replace);
-                
-            }
-            VarStr::Parsed(ParsedVar{
-                string: new
-            })
-        } else {
-            self.clone()
-        }
-    }*/
     fn replace_with<'a>(&self, vars: &HashMap<&'a str, &'a str>) -> VarStr {
         let list: Vec<String> = self.list_vars();
         if let &Unparsed(ref unparsed) = self {
@@ -152,26 +116,27 @@ impl HasVars for VarStr {
             lazy_static! {
                 static ref IS_NUMERIC: Regex = Regex::new(r#"^[0-9]{1,2}$"#).unwrap();
             }
-            'varlist: for var in list {
+            'varlist: for variable in list {
                 // what is arg_t ?????
-                // current_dir / current_exe
-                // arg:3  or  arg:*  or  arg:-s  or arg:-s,--some,--thing
                 let mut replace: String = "".to_string();
-                // let replace: &str = if ...
+                let mut reverse: bool = false;
+                let mut var = variable;
+                if var.starts_with("!flag:") {
+                    reverse = true;
+                    var = (&var[1..]).to_string();
+                    // println!("!flag: found, setting var to `{}`", var);
+                }
                 if var.trim().starts_with("arg:") {
                     let argument = &var.trim()[4..].trim();
-                    
-                    // if &var.trim()[4..] == "*" {
-                    if argument == &"*" {
-                        // entire command argument string
-                        // let all_args: Vec<String> = env::args().collect();
+                    if argument == &"$" {
                         let all_args: Vec<String> = env::args().collect();
-                        // let all_args = remove_flags(&env_args);
+                        replace = all_args[0].clone();
+                    } else if argument == &"*" {
+                        // entire command argument string
+                        let all_args: Vec<String> = env::args().collect();
                         let arg_str = all_args.join(" ");
-                        println!("Joined args into `{}`", arg_str);
+                        // println!("Joined args into `{}`", arg_str);
                         replace = arg_str;
-                        
-                    // } else if IS_NUMERIC.is_match(&var[4..].trim()) {
                     } else if IS_NUMERIC.is_match(argument) {
                         let num_result = (&var[4..]).trim().parse::<u8>();
                         match num_result {
@@ -179,8 +144,8 @@ impl HasVars for VarStr {
                                 // let all_args: Vec<String> = env::args().collect();
                                 let env_args: Vec<String> = env::args().collect();
                                 let all_args = remove_flags(&env_args);
-                                if (num as usize) < all_args.len() {
-                                    replace = all_args[num as usize].clone();
+                                if ((num) as usize) < all_args.len() {
+                                    replace = all_args[(num) as usize].clone();
                                 } else {
                                     // continue 'varlist;
                                 }
@@ -191,8 +156,6 @@ impl HasVars for VarStr {
                         }
                     } else {
                         let all_args: Vec<String> = env::args().collect();
-                        // let env_args: Vec<String> = env::args().collect();
-                        // let all_args = remove_flags(&env_args);
                         if argument.contains(",") {
                             'argslist: for part_raw in argument.split(',') {
                                 let part = part_raw.trim();
@@ -214,9 +177,6 @@ impl HasVars for VarStr {
                                 }
                             }
                         } else if argument.starts_with("-") {
-                            // let mut idx = 1;
-                            // for a in &all_args[1..] {
-                                // if argument == a {
                             let mut matched: bool = false;
                             'allargslist: for idx in 1..all_args.len() {
                                 if argument.to_lowercase() == all_args[idx].to_lowercase() {
@@ -244,8 +204,6 @@ impl HasVars for VarStr {
                     }
                 } else if var.starts_with("flag:") {
                     let all_args: Vec<String> = env::args().collect();
-                    // let env_args: Vec<String> = env::args().collect();
-                    // let all_args = remove_flags(&env_args);
                     let arguments = &var[5..].trim();
                     if arguments.contains(",") {
                         let mut matched: bool = false;
@@ -254,23 +212,21 @@ impl HasVars for VarStr {
                             let argument = raw_argument.trim();
                             if all_args.contains(&argument.to_string()) {
                                 matched = true;
-                                replace = "true".to_string();
+                                replace = if !reverse { "true".to_string() } else { "false".to_string() };
                                 break 'flaglist;
                             }
                         }
                         if !matched {
-                            replace = "false".to_string();
+                            replace = if !reverse { "false".to_string() } else { "true".to_string() };
                         }
                     } else {
                         if all_args.contains(&arguments.to_string()) {
-                            replace = "true".to_string();
+                            replace = if !reverse { "true".to_string() } else { "false".to_string() };
                         } else {
-                            replace = "false".to_string();
+                            replace = if !reverse { "false".to_string() } else { "true".to_string() };
                         }
                     }
-                    
                 } else if var.starts_with("env:") {
-                    // let all_args: Vec<String> = env::args().collect();
                     let env_args: Vec<String> = env::args().collect();
                     let all_args = remove_flags(&env_args);
                     let argument = &var.trim()[4..].trim();
@@ -278,11 +234,13 @@ impl HasVars for VarStr {
                         let num_raw = (&var[4..]).trim().parse::<u8>();
                         match num_raw{
                             Ok(num) => {
-                                if ((num+1) as usize) < all_args.len() {
-                                    replace = all_args[((num+1) as usize)].to_string();
+                                if ((num) as usize) < all_args.len() {
+                                    replace = all_args[((num) as usize)].to_string();
                                 }
                             },
-                            _ => { println!("env:# Index too large") },
+                            _ => { 
+                                // println!("env:# Index too large")
+                            },
                         }
                     } else {
                         // check if an env variable exist and use that
@@ -296,7 +254,6 @@ impl HasVars for VarStr {
                         }
                     }
                 } else {
-                    // let lower = var.to_lowercase();
                     let lower = var.trim().to_lowercase();
                     match vars.get(&lower.as_str()) {
                         Some(val) => {
@@ -308,7 +265,11 @@ impl HasVars for VarStr {
                     }
                 }
                 // debug!("Replacing {} with {}", var, replace);
-                new = new.replace(&format!("[[{}]]", var), &replace);
+                if !reverse {
+                    new = new.replace(&format!("[[{}]]", var), &replace);
+                } else {
+                    new = new.replace(&format!("[[!{}]]", var), &replace);
+                }
                 
             }
             VarStr::Parsed(ParsedVar{
@@ -317,12 +278,6 @@ impl HasVars for VarStr {
         } else {
             self.clone()
         }
-        // // TODO: actually implement this
-        // VarStr::Unparsed( UnparsedVar {
-        //     string: String::new()
-        // })
-        
-        
     }
 }
 
