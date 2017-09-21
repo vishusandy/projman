@@ -18,17 +18,10 @@ use ::structures::OperatingSystem;
 
 pub trait Configurable {
     type C: ::configuration::storage::Configurable; //: Serialize + Deserialize;
-    // type S: Serialize; // + Deserialize;
-    // #[serde(bound(Deserialize = ""))]
-    // type D: Deserialize<'de>;
-    // Works:
-    // fn store_config(cfg: &Self::S, path: PathBuf) -> bool {
     fn store_config_yaml(cfg: &Self::C, path: PathBuf) -> bool where 
         <Self as ::configuration::storage::Configurable>::C: ::serde::Serialize
     {
-    // fn store_config(&self, path: PathBuf) -> bool {
         let mut f = File::create(path.to_str().expect("Could not convert global_install path to string.")).expect("Could not create file for global_install config serialization.");
-        // let ser = ::serde_json::to_string(self).expect("Could not serialize global_install configuration data.");
         let ser = ::serde_yaml::to_string(cfg).expect("Could not serialize yaml configuration data.");
         #[allow(dead_code)]
         let rst = f.write(ser.as_bytes());
@@ -42,11 +35,6 @@ pub trait Configurable {
             false
         }
     }
-    
-    // fn retrieve_config(&self, path: PathBuf) -> Self::C {
-    
-    // fn retrieve_config_yaml(path: PathBuf) -> Option<Self::C, Self::C> where
-        // for<'de> <Self as ::configuration::storage::Configurable>::C: ::serde::Deserialize<'de>
     fn retrieve_config_yaml(path: PathBuf) -> Result<Self::C, Self::C> where
         for<'de> <Self as ::configuration::storage::Configurable>::C: ::serde::Deserialize<'de>
     {
@@ -55,31 +43,11 @@ pub trait Configurable {
             Ok(mut f) => {
                 let mut buffer: String = String::new();
                 f.read_to_string(&mut buffer);
-                // let install: GlobalInstall = ::serde_json::from_str(&mut buffer).expect("Could not deserialize global_install configuration data.");
                 let output: Self::C = ::serde_yaml::from_str(&buffer).expect("Could not deserialize yaml configuration data.");
                 Ok(output)
             },
             Err(_) => {
-                // let output: Self::C = Self::C.blank();
-                // let output: Self::C = ::configuration::storage::Configurable::blank();
-                // let output: Self::C = <Self::C as ::configuration::storage::Configurable>::blank();
-                
-                // let output: Self::C =<Self::C as ::configuration::storage::Configurable>::blank();
-                // let output: Self::C = <Self::C as ::configuration::storage::Configurable>::blank();
                 let output: Self::C = <Self as ::configuration::storage::Configurable>::blank();
-                
-                // output.store_config_yaml();
-                // output.store_config_yaml();
-                
-                // ::configuration::storage::Configurable::store_config_yaml(&output, path);
-                
-                // Configurable::store_config_yaml<Self::C>(&(<Self as ::configuration::storage::Configurable>::blank()), path);
-                // ::configuration::storage::Configurable::C::store_config_yaml(&output, path);
-                // ::configuration::storage::Configurable::C::store_config_yaml(&output, path);
-                
-                // <Self::C as ::configuration::storage::Configurable>::C::store_config_yaml(&output, path);
-                
-                // output.store_yaml(path);
                 Err(output)
             }
         }
@@ -184,6 +152,8 @@ impl Local {
     
 }
 
+
+
 impl GlobalUser {
     pub fn blank() -> GlobalUser {
         GlobalUser {
@@ -204,6 +174,42 @@ impl GlobalUser {
             } else {
                 bin_dir
             },
+        }
+    }
+}
+
+
+
+impl GlobalInstall {
+    pub fn blank() -> GlobalInstall {
+        let os = OperatingSystem::new();
+        GlobalInstall {
+            user_dir: {
+                // TODO: if linux make more specific default paths using the os_type crate
+                let mut dir = env::home_dir().expect("Could not find user directory.");
+                dir.push("proman");
+                dir
+            },
+            // install_path: PathBuf::from(::structures::DEFAULT_INSTALL_PATH),
+            install_path: PathBuf::from(os.get_install_path()),
+            install_bin_path: {
+                let mut dir = PathBuf::from(os.get_install_path());
+                dir.push("bin");
+                dir
+            },
+            os,
+        }
+    }
+    pub fn new(user_dir: PathBuf, install_path: PathBuf) -> GlobalInstall {
+        GlobalInstall {
+            user_dir: user_dir.clone(),
+            install_path: install_path.clone(),
+            install_bin_path: {
+                let mut dir = install_path.clone();
+                dir.push("bin");
+                dir
+            },
+            os: OperatingSystem::new(),
         }
     }
 }
@@ -329,39 +335,6 @@ impl Configurable  for GlobalUser {
     }
 }
 
-impl GlobalInstall {
-    pub fn blank() -> GlobalInstall {
-        let os = OperatingSystem::new();
-        GlobalInstall {
-            user_dir: {
-                // TODO: if linux make more specific default paths using the os_type crate
-                let mut dir = env::home_dir().expect("Could not find user directory.");
-                dir.push("proman");
-                dir
-            },
-            // install_path: PathBuf::from(::structures::DEFAULT_INSTALL_PATH),
-            install_path: PathBuf::from(os.get_install_path()),
-            install_bin_path: {
-                let mut dir = PathBuf::from(os.get_install_path());
-                dir.push("bin");
-                dir
-            },
-            os,
-        }
-    }
-    pub fn new(user_dir: PathBuf, install_path: PathBuf) -> GlobalInstall {
-        GlobalInstall {
-            user_dir: user_dir.clone(),
-            install_path: install_path.clone(),
-            install_bin_path: {
-                let mut dir = install_path.clone();
-                dir.push("bin");
-                dir
-            },
-            os: OperatingSystem::new(),
-        }
-    }
-}
 
 // impl<'de> Configurable<'de> for GlobalInstall {
 impl Configurable for GlobalInstall {
@@ -620,17 +593,6 @@ impl Configurable for Local {
 
 // impl Configurable for Global<T: ::project::Project> {
     
-// }
-
-
-// TODO: Implement configurable for LocalCfg
-//          store_json(&self, PathBuf) -> bool  
-//          retrieve_json(PathBuf) -> Local
-//          parse_vars(&mut self)
-//
-// impl Configurable for LocalCfg {
-//  
-// }
 
 
 

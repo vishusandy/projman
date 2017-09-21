@@ -125,7 +125,8 @@ fn main() {
     println!("This is the `run` command!");
     
     // ::configuration::storage::Debug::store_configs_blank();
-    ::manager::managed_deserialize();
+    
+    // ::manager::managed_deserialize();
     
     
     
