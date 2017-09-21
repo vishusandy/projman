@@ -43,22 +43,23 @@ pub trait Configurable {
     }
     
     // fn retrieve_config(&self, path: PathBuf) -> Self::C {
-    //     let mut open = File::open(path.to_str().expect("Could not convert global_install path to a string."));
-    //     match open {
-    //         Ok(mut f) => {
-    //             let mut buffer: String = String::new();
-    //             f.read_to_string(&mut buffer);
-    //             // let install: GlobalInstall = ::serde_json::from_str(&mut buffer).expect("Could not deserialize global_install configuration data.");
-    //             let output: Self::C = ::serde_yaml::from_str(&buffer).expect("Could not deserialize yaml configuration data.");
-    //             output
-    //         },
-    //         Err(_) => {
-    //             let output: Self::C = GlobalInstall::blank();
-    //             output.store_yaml(path);
-    //             output
-    //         }
-    //     }
-    // }
+    fn retrieve_config(path: PathBuf) -> Self::C {
+        let mut open = File::open(path.to_str().expect("Could not convert global_install path to a string."));
+        match open {
+            Ok(mut f) => {
+                let mut buffer: String = String::new();
+                f.read_to_string(&mut buffer);
+                // let install: GlobalInstall = ::serde_json::from_str(&mut buffer).expect("Could not deserialize global_install configuration data.");
+                let output: Self::C = ::serde_yaml::from_str(&buffer).expect("Could not deserialize yaml configuration data.");
+                output
+            },
+            Err(_) => {
+                let output: Self::C = GlobalInstall::blank();
+                output.store_yaml(path);
+                output
+            }
+        }
+    }
     
     fn store_msgpack(&self, PathBuf) -> bool;
     fn retrieve_msgpack(PathBuf) -> Self;
