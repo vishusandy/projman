@@ -45,7 +45,9 @@ pub trait Configurable {
     
     // fn retrieve_config(&self, path: PathBuf) -> Self::C {
     
-    fn retrieve_config_yaml(path: PathBuf) -> Self::C where
+    // fn retrieve_config_yaml(path: PathBuf) -> Option<Self::C, Self::C> where
+        // for<'de> <Self as ::configuration::storage::Configurable>::C: ::serde::Deserialize<'de>
+    fn retrieve_config_yaml(path: PathBuf) -> Result<Self::C, Self::C> where
         for<'de> <Self as ::configuration::storage::Configurable>::C: ::serde::Deserialize<'de>
     {
         let mut open = File::open(path.to_str().expect("Could not convert global_install path to a string."));
@@ -55,7 +57,7 @@ pub trait Configurable {
                 f.read_to_string(&mut buffer);
                 // let install: GlobalInstall = ::serde_json::from_str(&mut buffer).expect("Could not deserialize global_install configuration data.");
                 let output: Self::C = ::serde_yaml::from_str(&buffer).expect("Could not deserialize yaml configuration data.");
-                output
+                Ok(output)
             },
             Err(_) => {
                 // let output: Self::C = Self::C.blank();
@@ -78,7 +80,7 @@ pub trait Configurable {
                 // <Self::C as ::configuration::storage::Configurable>::C::store_config_yaml(&output, path);
                 
                 // output.store_yaml(path);
-                output
+                Err(output)
             }
         }
     }
