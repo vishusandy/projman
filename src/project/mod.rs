@@ -5,9 +5,16 @@ mod proj_rust;
 use self::proj_rust::*;
 use ::serde::{Deserialize, Serialize};
 use ::rmps::{Deserializer, Serializer};
+use std::marker::PhantomData;
 
 // Implementors of Project trait must also implement Configurable to save/load the config data
+
+// pub trait Project : ::configuration::storage::Configurable {
+// pub trait Project<'de> : ::configuration::storage::Configurable<'de> {
+
+// pub trait Project<'de> : ::configuration::storage::Configurable<'de> {
 pub trait Project : ::configuration::storage::Configurable {
+    // type B: Project<'de>; // collection of actions, a Behavior
     type B: Project; // collection of actions, a Behavior
     
     fn language(&self) -> String;
@@ -46,6 +53,8 @@ impl Action {
 pub trait Actionable {
     fn execute(&self) -> Result<String, String>;
 }
+
+// impl <T: Configurable> Something<T>
 
 // impl Actionable for Action {
     

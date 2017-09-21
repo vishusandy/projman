@@ -3,6 +3,8 @@ use std::path::{Path, PathBuf};
 use std::ffi::OsString;
 use std::collections::HashMap;
 
+use std::marker::PhantomData;
+
 pub mod storage;
 use structures::*;
 
@@ -61,7 +63,13 @@ pub struct GlobalInstall {
 // related struct.
 // The parse_vars() method should only call the parse_vars()
 // method on each of the config structs inside it.
-pub struct Global<T: ::project::Project> {
+
+// pub struct Global<'de, T: ::project::Project<'de>> {
+
+// pub struct Global<'de, T: ::project::Project<'de>> {
+// pub struct Global<'PhantomData, T> where T: ::project::Project<'PhantomData> {
+pub struct Global<T> where T: ::project::Project {
+
     local: Local,
     local_details: T,
     user: GlobalUser,

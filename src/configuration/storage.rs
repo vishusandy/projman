@@ -17,6 +17,49 @@ use structures::defaults::{DEFAULT_VCS, DEFAULT_VERSION_INC, DEFAULT_LANGUAGE};
 use ::structures::OperatingSystem;
 
 pub trait Configurable {
+    type C; //: Serialize + Deserialize;
+    // type S: Serialize; // + Deserialize;
+    // #[serde(bound(Deserialize = ""))]
+    // type D: Deserialize<'de>;
+    // Works:
+    // fn store_config(cfg: &Self::S, path: PathBuf) -> bool {
+    fn store_config(cfg: &Self::C, path: PathBuf) -> bool where 
+        <Self as ::configuration::storage::Configurable>::C: ::serde::Serialize {
+    // fn store_config(&self, path: PathBuf) -> bool {
+        let mut f = File::create(path.to_str().expect("Could not convert global_install path to string.")).expect("Could not create file for global_install config serialization.");
+        // let ser = ::serde_json::to_string(self).expect("Could not serialize global_install configuration data.");
+        let ser = ::serde_yaml::to_string(cfg).expect("Could not serialize yaml configuration data.");
+        #[allow(dead_code)]
+        let rst = f.write(ser.as_bytes());
+        if let Ok(res) = rst {
+            if res != 0 {
+                true
+            } else {
+                false
+            }
+        } else {
+            false
+        }
+    }
+    
+    // fn retrieve_config(&self, path: PathBuf) -> Self::C {
+    //     let mut open = File::open(path.to_str().expect("Could not convert global_install path to a string."));
+    //     match open {
+    //         Ok(mut f) => {
+    //             let mut buffer: String = String::new();
+    //             f.read_to_string(&mut buffer);
+    //             // let install: GlobalInstall = ::serde_json::from_str(&mut buffer).expect("Could not deserialize global_install configuration data.");
+    //             let output: Self::C = ::serde_yaml::from_str(&buffer).expect("Could not deserialize yaml configuration data.");
+    //             output
+    //         },
+    //         Err(_) => {
+    //             let output: Self::C = GlobalInstall::blank();
+    //             output.store_yaml(path);
+    //             output
+    //         }
+    //     }
+    // }
+    
     fn store_msgpack(&self, PathBuf) -> bool;
     fn retrieve_msgpack(PathBuf) -> Self;
     fn store_yaml(&self, PathBuf) -> bool;
@@ -139,7 +182,11 @@ impl GlobalUser {
     }
 }
 
-impl Configurable for GlobalUser {
+// impl<'de> Configurable <'de> for GlobalUser {
+impl Configurable  for GlobalUser {
+    type C = GlobalUser;
+	// type D = GlobalUser;
+    
     fn store_msgpack(&self, path: PathBuf) -> bool {
         let mut f = File::create(path.to_str().expect("Could not convert path to string.")).expect("Could not create file for config serialization.");
         let mut buffer = Vec::new();
@@ -286,7 +333,11 @@ impl GlobalInstall {
     }
 }
 
+// impl<'de> Configurable<'de> for GlobalInstall {
 impl Configurable for GlobalInstall {
+    type C = GlobalInstall;
+	// type D = GlobalInstall;
+    
     fn store_msgpack(&self, path: PathBuf) -> bool {
         let mut f = File::create(path.to_str().expect("Could not convert path to string.")).expect("Could not create file for config serialization.");
         let mut buffer = Vec::new();
@@ -400,7 +451,11 @@ impl Configurable for GlobalInstall {
     }
 }
 
+// impl<'de> Configurable<'de> for Local {
 impl Configurable for Local {
+    type C = Local;
+	// type D = Local;
+    
     fn store_msgpack(&self, path: PathBuf) -> bool {
         let mut f = File::create(path.to_str().expect("Could not convert path to string.")).expect("Could not create file for config serialization.");
         let mut buffer = Vec::new();
