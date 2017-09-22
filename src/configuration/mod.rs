@@ -13,6 +13,7 @@ use structures::*;
 pub struct LocalCfg {
     project_name: String,
     project_path: String,
+    global_install: String,
     vcs: String,
     inc_version: String,
     language: String,
@@ -28,6 +29,7 @@ pub struct LocalCfg {
 pub struct Local {
     project_name: String,
     project_path: PathBuf,
+    global_install: Option<PathBuf>,
     vcs: VersionControl,
     inc_version: VersionInc,
     language: Language,
@@ -41,6 +43,7 @@ pub struct Local {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GlobalUser {
     user_bin_path: PathBuf,
+    user_default_install: PathBuf,
     // user_path: PathBuf, // moved to the GlobalInstall struct
     
 }

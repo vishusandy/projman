@@ -17,7 +17,12 @@ use structures::defaults::{DEFAULT_VCS, DEFAULT_VERSION_INC, DEFAULT_LANGUAGE};
 use ::structures::OperatingSystem;
 
 pub trait Configurable {
+    
     type C: ::configuration::storage::Configurable; //: Serialize + Deserialize;
+    
+    
+    // fn store_config_yaml(cfg: &Self::C, path: PathBuf) -> bool where 
+        // <Self as ::configuration::storage::Configurable>::C: ::serde::Serialize
     fn store_config_yaml(cfg: &Self::C, path: PathBuf) -> bool where 
         <Self as ::configuration::storage::Configurable>::C: ::serde::Serialize
     {
@@ -35,6 +40,9 @@ pub trait Configurable {
             false
         }
     }
+    
+    // fn retrieve_config_yaml(path: PathBuf) -> Result<Self::C, Self::C> where
+        // for<'de> <Self as ::configuration::storage::Configurable>::C: ::serde::Deserialize<'de>
     fn retrieve_config_yaml(path: PathBuf) -> Result<Self::C, Self::C> where
         for<'de> <Self as ::configuration::storage::Configurable>::C: ::serde::Deserialize<'de>
     {
@@ -67,6 +75,17 @@ impl LocalCfg {
     pub fn to_local(&self) -> Local {
         Local {
             project_path: PathBuf::from(self.project_path.clone()),
+            global_install: {
+                if &self.global_install == "" {
+                    None
+                } else {
+                    Some(PathBuf::from(self.global_install.clone()))
+                }
+                // match &self.global_install {
+                //     "" => None,
+                //     _ => PathBuf::from(self.global_install.clone()),
+                // }
+            },
             vcs: VersionControl::from_str(&self.vcs),
             inc_version: VersionInc::from_str(&self.inc_version),
             language: Language::from_str(&self.language),
@@ -82,6 +101,7 @@ impl LocalCfg {
             // project_name: if proj_path.is_dir() { proj_path.file_name().to_string_lossy().into_owned() } else {},
             project_name: proj_path.file_name().unwrap().to_string_lossy().into_owned(),
             project_path: proj_path.to_string_lossy().into_owned(),
+            global_install: String::from(""),
             vcs: DEFAULT_VCS.to_str().to_string(),
             inc_version: DEFAULT_VERSION_INC.to_str().to_string(),
             language: DEFAULT_LANGUAGE.to_str().to_string(),
@@ -98,6 +118,17 @@ impl Local {
     pub fn to_local_cfg(&self) -> LocalCfg {
         LocalCfg {
             project_path: self.project_path.to_str().unwrap_or("").to_string(),
+            global_install: {
+                if let Some(ref a) = self.global_install {
+                    a.to_str().unwrap_or("").to_string()
+                } else {
+                    "".to_string()
+                }
+                // match self.global_install {
+                //     None => "".to_string(),
+                //     Some(a) => a.to_str().unwrap_or("").to_string(),
+                // }
+            },
             vcs: self.vcs.to_str().to_string(),
             inc_version: self.inc_version.to_str().to_string(),
             language: self.language.to_str().to_string(),
@@ -111,6 +142,10 @@ impl Local {
     }
     pub fn blank(proj_path: PathBuf) -> Local {
         Local {
+            global_install: match env::current_exe() {
+                Ok(path) => Some(path),
+                Err(_) => None,
+            },
             project_name: proj_path.file_name().unwrap().to_string_lossy().into_owned(),
             project_path: if proj_path.is_dir() {
                 proj_path
@@ -131,6 +166,10 @@ impl Local {
     }
     pub fn new(proj_path: PathBuf, proj_name: String, proj_lang: ::structures::Language, proj_type: String) -> Local {
         Local {
+            global_install: match env::current_exe() {
+                Ok(path) => Some(path),
+                Err(_) => None,
+            },
             project_name: proj_name,
             project_path: proj_path,
             vcs: DEFAULT_VCS,
@@ -163,6 +202,7 @@ impl GlobalUser {
                 dir.push("bin");
                 dir
             },
+            user_default_install: ::manager::find_user_cfg().unwrap_or(PathBuf::new()),
         }
     }
     pub fn new(bin_dir: PathBuf) -> GlobalUser {
@@ -174,6 +214,7 @@ impl GlobalUser {
             } else {
                 bin_dir
             },
+            user_default_install: ::manager::find_user_cfg().unwrap_or(PathBuf::new()),
         }
     }
 }
