@@ -77,7 +77,11 @@ pub fn create_user_cfg<C: ::configuration::storage::Configurable>(user: &C, path
     // let user = ::configuration::GlobalUser::blank();
     // ::configuration::storage::Configurable::store_config_yaml<::configuration::storage::Configurable::C= ::configuration::GlobalUser>(user, path)
     // ::configuration::storage::Configurable::store_config_yaml<::configuration::storage::Configurable::C = ::configuration::GlobalUser>(user, path)
-    ::configuration::storage::Configurable::store_config_yaml(user as ::configuration::storage::Configurable<::configuration::GlobalUser>, path)
+    
+    // ::configuration::storage::Configurable::store_config_yaml(user as ::configuration::storage::Configurable<::configuration::GlobalUser>, path)
+    ::configuration::storage::Configurable::store_config_yaml(user as &::configuration::storage::Configurable<::configuration::GlobalUser>, path)
+    
+    
     
 }
 
