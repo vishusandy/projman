@@ -76,7 +76,8 @@ pub fn managed_deserialize() {
 pub fn create_user_cfg<C: ::configuration::storage::Configurable>(user: &C, path: PathBuf) -> bool {
     // let user = ::configuration::GlobalUser::blank();
     // ::configuration::storage::Configurable::store_config_yaml<::configuration::storage::Configurable::C= ::configuration::GlobalUser>(user, path)
-    ::configuration::storage::Configurable::store_config_yaml<::configuration::storage::Configurable::C = ::configuration::GlobalUser>(user, path)
+    // ::configuration::storage::Configurable::store_config_yaml<::configuration::storage::Configurable::C = ::configuration::GlobalUser>(user, path)
+    ::configuration::storage::Configurable::store_config_yaml(user as ::configuration::storage::Configurable<::configuration::GlobalUser>, path)
     
 }
 
