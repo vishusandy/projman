@@ -9,6 +9,7 @@ extern crate env_logger;
 
 #[macro_use] extern crate lazy_static;
 
+extern crate winreg;
 extern crate os_type;
 extern crate regex;
 extern crate semver;
@@ -35,6 +36,11 @@ use std::ffi::OsString;
 use std::collections::HashMap;
 // extern crate regex;
 // use regex::Regex;
+
+use std::io;
+use winreg::RegKey;
+use winreg::enums::*;
+
 
 use ::structures::*;
 use ::structures::var_str::*;

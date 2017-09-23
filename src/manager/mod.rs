@@ -24,6 +24,7 @@ use std::ffi::OsString;
 use std::collections::HashMap;
 use std::io::prelude::*;
 use std::error::Error;
+use std::sync::Mutex;
 
 
 
@@ -43,6 +44,27 @@ use std::error::Error;
 // this allows the config file to be found anywhere
 // the GlobalInstall struct should specify where the
 // global user directory is located
+
+lazy_static!{
+    static ref LOCAL_CONFIG: Mutex<::configuration::Local> = Mutex::new(::configuration::Local::blank(PathBuf::new()));
+    static ref INSTALL_CONFIG: Mutex<::configuration::GlobalInstall> = Mutex::new(::configuration::GlobalInstall::blank());
+    static ref USER_CONFIG: Mutex<::configuration::GlobalUser> = Mutex::new(::configuration::GlobalUser::blank());
+    
+    
+    
+    // static ref LOCAL_CONFIG: ::configuration::Local = ::configuration::Local::blank(PathBuf::new());
+    // static ref INSTALL_CONFIG: ::configuration::GlobalInstall = ::configuration::GlobalInstall::blank();
+    // static ref INSTALL_USER: ::configuration::GlobalUser = ::configuration::GlobalUser::blank();
+}
+
+
+
+
+
+
+
+
+
 
 
 // pub fn managed_deserialize<T: ::project::Project>() -> Global<T> {
@@ -79,9 +101,14 @@ pub fn create_user_cfg<C: ::configuration::storage::Configurable>(user: &C, path
     // ::configuration::storage::Configurable::store_config_yaml<::configuration::storage::Configurable::C = ::configuration::GlobalUser>(user, path)
     
     // ::configuration::storage::Configurable::store_config_yaml(user as ::configuration::storage::Configurable<::configuration::GlobalUser>, path)
-    ::configuration::storage::Configurable::store_config_yaml(user as &::configuration::storage::Configurable<::configuration::GlobalUser>, path)
     
+    // ::configuration::storage::Configurable::store_config_yaml(user as &::configuration::storage::Configurable<::configuration::GlobalUser>, path)
+    // store::<Type>(assocVal, path)
     
+    // ::configuration::storage::Configurable::store_config_yaml::<::configuration::GlobalUser>(user, path)
+    
+    // ::configuration::storage::Configurable::store_config_yaml<>(user, path)
+    true
     
 }
 

@@ -7,6 +7,7 @@ extern crate semver;
 extern crate rmp_serde as rmps;
 extern crate serde_yaml;
 
+extern crate winreg;
 extern crate os_type;
 
 mod project;
