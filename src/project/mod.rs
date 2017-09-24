@@ -7,6 +7,11 @@ use ::serde::{Deserialize, Serialize};
 use ::rmps::{Deserializer, Serializer};
 use std::marker::PhantomData;
 
+use ::structures::*;
+use ::structures::executables::*;
+use ::configuration::*;
+use ::configuration::storage::*;
+
 // Implementors of Project trait must also implement Configurable to save/load the config data
 
 // pub trait Project : ::configuration::storage::Configurable {
@@ -38,19 +43,43 @@ pub trait Project : ::configuration::storage::Configurable {
     
 }
 
-pub fn find_proj_details<T>(local_opt: Option<Local>) -> Option<T> where T: ::project::Project {
+/*pub fn find_proj_details<T>(local_opt: Option<Local>) -> Option<T> where T: ::project::Project {
 
+}*/
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum ExeScope {
+    Global,
+    Local,
+    Error,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Action {
+    name: String,
+    scope: ExeScope,
+    executables: Vec<Executable>,
+}
+/*#[derive(Serialize, Deserialize, Debug)]
+pub struct Action {
     executable: PathBuf,
     args: Vec<String>,
     runin: PathBuf,
-}
+}*/
 
 impl Action {
+    /*
+    pub fn blank() -> Action {
+        Action {
+            name: "".to_string(),
+            scope: ExeScope::Error,
+            executables: Vec::new(),
+        }
+    }
+    pub fn new(name: String, global: bool, executables: Vec<Executable>) -> Action {
     
+    }
+    */
 }
 
 

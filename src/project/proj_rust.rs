@@ -34,9 +34,11 @@ pub enum Command {
     Check,
     Commit,
     Docs,
+    Edit,
     Info,
     Interpret,
     List,
+    Open,
     New,
     Run,
     Save,
@@ -48,6 +50,9 @@ pub enum Command {
 }
 */
 
+// use ::project::{Project, Action, Actionable};
+use ::project::*;
+use ::structures::executables::*;
 
 pub enum RustBuildMode {
     Debug,
@@ -71,6 +76,38 @@ impl RustMultiBinary {
     
 }
 
-// impl Project for RustVars {
+/*
+impl Project for RustVars {
+    fn language(&self) -> String {
+        
+    }
+    fn proj_type(&self) -> String {
+        
+    }
+    fn action_build<'a>(proj_details: , args: Vec<String>) -> Action {
+        // Executable::from(src, runin, args) // string string string
+        // Executable::new(source, args) pathbuf varstr
+        // Executable::blank()
+        
+        
+    }
     
-// }
+    
+}
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -28,7 +28,7 @@ pub trait Runnable {
 }
 
 // #[derive(Debug)]
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum Language {
     AutoHotKey,
     AutoIt,
@@ -47,7 +47,7 @@ pub enum Language {
     Web,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum VersionControl {
     Git,
     Hg,
@@ -55,7 +55,7 @@ pub enum VersionControl {
     // Custom(String),
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum VersionInc {
     Major,
     Minor,
@@ -78,25 +78,25 @@ pub enum OperatingSystem {
 
 
 #[cfg(target_os = "macos")]
-static OPERATING_SYSTEM: &'static str = "Mac";
+pub static OPERATING_SYSTEM: &'static str = "Mac";
 #[cfg(target_os = "macos")]
-static DEFAULT_INSTALL_PATH: &'static str = "/Applications/proman";
+pub static DEFAULT_INSTALL_PATH: &'static str = "/Applications/proman";
 // #[cfg(target_os = "macos")]
 
 #[cfg(target_os = "linux")]
-static OPERATING_SYSTEM: &'static str = "Linux";
+pub static OPERATING_SYSTEM: &'static str = "Linux";
 #[cfg(target_os = "linux")]
-static DEFAULT_INSTALL_PATH: &'static str = "/usr/local/proman";
+pub static DEFAULT_INSTALL_PATH: &'static str = "/usr/local/proman";
 
 #[cfg(target_os = "android")]
-static OPERATING_SYSTEM: &'static str = "Android";
+pub static OPERATING_SYSTEM: &'static str = "Android";
 #[cfg(target_os = "android")]
-static DEFAULT_INSTALL_PATH: &'static str = "/data/data/proman";
+pub static DEFAULT_INSTALL_PATH: &'static str = "/data/data/proman";
 
 #[cfg(target_os = "windows")]
-static OPERATING_SYSTEM: &'static str = "Windows";
+pub static OPERATING_SYSTEM: &'static str = "Windows";
 #[cfg(target_os = "windows")]
-static DEFAULT_INSTALL_PATH: &'static str = r#"C:\Program Files\proman"#;
+pub static DEFAULT_INSTALL_PATH: &'static str = r#"C:\Program Files\proman"#;
 
 // #[cfg(not(OPERATING_SYSTEM))]
 // static OPERATING_SYSTEM: &'static str = "Unknown";
@@ -104,9 +104,9 @@ static DEFAULT_INSTALL_PATH: &'static str = r#"C:\Program Files\proman"#;
 // static DEFAULT_INSTALL_PATH: &'static str = "/proman";
 
 #[cfg(target_pointer_width = "32")]
-static ARCHITECTURE: u8 = 32;
+pub static ARCHITECTURE: u8 = 32;
 #[cfg(target_pointer_width = "64")]
-static ARCHITECTURE: u8 = 64;
+pub static ARCHITECTURE: u8 = 64;
 // #[cfg(not(ARCHITECTURE))]
 // static ARCHITECTURE: u8 = 0;
 
@@ -175,7 +175,7 @@ impl OperatingSystem {
     pub fn install_folder() -> PathBuf {
         let mut dir: PathBuf = PathBuf::from(DEFAULT_INSTALL_PATH);
         // dir.parent().expect("Could not retrieve default install path.").to_path_buf()
-        dir.parent().unwrap_or(dir).to_path_buf()
+        dir.parent().unwrap_or(&dir).to_path_buf()
     }
     pub fn architecture() -> u8 {
         ARCHITECTURE

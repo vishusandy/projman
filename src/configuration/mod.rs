@@ -25,7 +25,7 @@ pub struct LocalCfg {
 }
 
 // saved as a msgpack file
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Local {
     pub project_name: String,
     pub project_path: PathBuf,
