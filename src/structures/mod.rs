@@ -165,15 +165,17 @@ impl OperatingSystem {
         }
     }
     pub fn install_path() -> PathBuf {
-        match OPERATING_SYSTEM {
-            // "Windows" if ARCHITECTURE == 32 => PathBuf::from(r#"C:\Program files (x86)"#),
-            "Windows" if ARCHITECTURE == 64 => PathBuf::from(r#"C:\Program files\proman"#),
-            _ => PathBuf::from(DEFAULT_INSTALL_PATH),
-        }
+        // match OPERATING_SYSTEM {
+        //     // "Windows" if ARCHITECTURE == 32 => PathBuf::from(r#"C:\Program files (x86)"#),
+        //     "Windows" if ARCHITECTURE == 64 => PathBuf::from(r#"C:\Program files\proman"#),
+        //     _ => PathBuf::from(DEFAULT_INSTALL_PATH),
+        // }
+        PathBuf::from(DEFAULT_INSTALL_PATH)
     }
     pub fn install_folder() -> PathBuf {
         let mut dir: PathBuf = PathBuf::from(DEFAULT_INSTALL_PATH);
-        dir.parent().expect("Could not retrieve default install path.").to_path_buf()
+        // dir.parent().expect("Could not retrieve default install path.").to_path_buf()
+        dir.parent().unwrap_or(dir).to_path_buf()
     }
     pub fn architecture() -> u8 {
         ARCHITECTURE

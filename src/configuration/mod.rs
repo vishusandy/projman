@@ -11,49 +11,49 @@ use structures::*;
 // saved as a hjson file
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LocalCfg {
-    project_name: String,
-    project_path: String,
-    global_install: String,
-    vcs: String,
-    inc_version: String,
-    language: String,
-    proj_type: String,
-    autoruns: Vec<String>,
-    abort_on_fail: bool,
-    custom_commands: HashMap<String, String>,
+    pub project_name: String,
+    pub project_path: String,
+    pub global_install: String,
+    pub vcs: String,
+    pub inc_version: String,
+    pub language: String,
+    pub proj_type: String,
+    pub autoruns: Vec<String>,
+    pub abort_on_fail: bool,
+    pub custom_commands: HashMap<String, String>,
     
 }
 
 // saved as a msgpack file
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Local {
-    project_name: String,
-    project_path: PathBuf,
-    global_install: Option<PathBuf>,
-    vcs: VersionControl,
-    inc_version: VersionInc,
-    language: Language,
-    proj_type: String,
-    autoruns: Vec<String>,
-    abort_on_fail: bool,
-    custom_commands: HashMap<String, String>, // if a command is specified that is already a command, it overrides that command
+    pub project_name: String,
+    pub project_path: PathBuf,
+    pub global_install: Option<PathBuf>,
+    pub vcs: VersionControl,
+    pub inc_version: VersionInc,
+    pub language: Language,
+    pub proj_type: String,
+    pub autoruns: Vec<String>,
+    pub abort_on_fail: bool,
+    pub custom_commands: HashMap<String, String>, // if a command is specified that is already a command, it overrides that command
     
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GlobalUser {
-    user_bin_path: PathBuf,
-    user_default_install: PathBuf,
+    pub user_bin_path: PathBuf,
+    pub user_default_install: PathBuf,
     // user_path: PathBuf, // moved to the GlobalInstall struct
     
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GlobalInstall {
-    user_dir: PathBuf,
-    install_bin_path: PathBuf,
-    install_path: PathBuf,
-    os: OperatingSystem,
+    pub user_dir: PathBuf,
+    pub install_bin_path: PathBuf,
+    pub install_path: PathBuf,
+    pub os: OperatingSystem,
     
 }
 
@@ -73,10 +73,10 @@ pub struct GlobalInstall {
 // pub struct Global<'PhantomData, T> where T: ::project::Project<'PhantomData> {
 pub struct Global<T> where T: ::project::Project {
 
-    local: Local,
-    local_details: T,
-    user: GlobalUser,
-    install: GlobalInstall,
+    pub local: Option<Local>,
+    pub local_details: Option<T>,
+    pub user: GlobalUser,
+    pub install: GlobalInstall,
     
 }
 

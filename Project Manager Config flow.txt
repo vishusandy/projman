@@ -14,8 +14,11 @@ Make Action be a vector of Executables to run
 replace autoruns with saving a list of actions to run in the project/user/global file
 
 
-Make a action reset command to reset the actions to the default, enable backup of current file by default but ability to surpress backing up current file with a --nobackup flag or something
+Make a action reset command to reset the actions to the default, enable backup of current file by default but allow ability to surpress backing up current file with a --nobackup flag or something
 
+
+
+Maybe add a max config parent recurse option (or something better named) in the Local config struct
 
 
 

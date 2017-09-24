@@ -38,6 +38,10 @@ pub trait Project : ::configuration::storage::Configurable {
     
 }
 
+pub fn find_proj_details<T>(local_opt: Option<Local>) -> Option<T> where T: ::project::Project {
+
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Action {
     executable: PathBuf,

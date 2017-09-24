@@ -12,7 +12,8 @@ use ::structures::*;
 use ::structures::var_str::*;
 use ::structures::executables::*;
 use ::helpers::*;
-use ::structures::defaults::{INSTALL_FILENAME, USER_FILENAME, PROJECT_FILENAME};
+use structures::{DEFAULT_INSTALL_PATH};
+use ::structures::defaults::{INSTALL_FILENAME, USER_FILENAME, PROJECT_FILENAME, CONFIG_RECURSE_DEPTH};
 // use ::structures::defaults::*;
 
 use std::process::{Command, Output, ExitStatus};
@@ -24,7 +25,9 @@ use std::ffi::OsString;
 use std::collections::HashMap;
 use std::io::prelude::*;
 use std::error::Error;
-use std::sync::Mutex;
+
+use std::cell::RefCell;
+// use std::sync::Mutex;
 
 
 
@@ -45,27 +48,182 @@ use std::sync::Mutex;
 // the GlobalInstall struct should specify where the
 // global user directory is located
 
-lazy_static!{
-    static ref LOCAL_CONFIG: Mutex<::configuration::Local> = Mutex::new(::configuration::Local::blank(PathBuf::new()));
-    static ref INSTALL_CONFIG: Mutex<::configuration::GlobalInstall> = Mutex::new(::configuration::GlobalInstall::blank());
-    static ref USER_CONFIG: Mutex<::configuration::GlobalUser> = Mutex::new(::configuration::GlobalUser::blank());
+// lazy_static!{
+//     static ref LOCAL_CONFIG: Mutex<::configuration::Local> = Mutex::new(::configuration::Local::blank(PathBuf::new()));
+//     static ref INSTALL_CONFIG: Mutex<::configuration::GlobalInstall> = Mutex::new(::configuration::GlobalInstall::blank());
+//     static ref USER_CONFIG: Mutex<::configuration::GlobalUser> = Mutex::new(::configuration::GlobalUser::blank());
+// }
+    
+// impl ::configuration::Global {
+//     pub fn startup(&mut self) -> ::configuration::Global {
+        
+//     }
+    
+// }
+
+
+pub fn find_local() -> Option<::configuration::Local> {
+    let cur = env::current_dir();
+    if let Ok(cd) = cur {
+        let mut local_file = cd.clone();
+        local_file.set_file_name(::structures::defaults::PROJECT_FILENAME);
+        if local_file.exists() {
+            // retrieve local config
+            let local_cfg = ::configuration::LocalCfg::retrieve_yaml(local_file);
+            let local = local_cfg.to_local();
+            Some(local)
+        } else {
+            // look up to CONFIG_RECURSE_DEPTH parent directories 
+            let mut cur_dir = cd.clone();
+            let mut parent_opt = cur_dir.parent();
+            let mut parent: PathBuf;
+            if let Some(par) = parent_opt {
+                parent = par.to_path_buf();
+                
+                'parent_loop: for i in 0..::structures::defaults::CONFIG_RECURSE_DEPTH {
+                    let mut cur_parent = parent.clone();
+                    cur_parent.set_file_name(::structures::defaults::PROJECT_FILENAME);
+                    if cur_parent.exists() {
+                        let local_cfg = ::configuration::LocalCfg::retrieve_yaml(local_file);
+                        let local = local_cfg.to_local();
+                        return local;
+                    }
+                    
+                    // if i+1 != ::structures::defaults::CONFIG_RECURSE_DEPTH {
+                    parent_opt = parent.parent();
+                    if Some(par_opt) = parent_opt {
+                        parent = par_opt.to_path_buf();
+                    } else {
+                        break 'parent_loop;
+                    }
+                    // }
+                }
+                None
+            } else {
+                None
+            }
+        }
+    } else {
+        None
+    }
     
     
-    
-    // static ref LOCAL_CONFIG: ::configuration::Local = ::configuration::Local::blank(PathBuf::new());
-    // static ref INSTALL_CONFIG: ::configuration::GlobalInstall = ::configuration::GlobalInstall::blank();
-    // static ref INSTALL_USER: ::configuration::GlobalUser = ::configuration::GlobalUser::blank();
+}
+
+pub fn find_install_without_local() -> ::configuration::GlobalInstall {
+    let cur_exe = env::current_exe();
+    let inst = PathBuf::from(::strcutures::DEFAULT_INSTALL_PATH);
+    let os = ::structures::OperatingSystem::new();
+    // if os.get_install_path().exists() {
+    let mut install_file = os.get_install_path().clone();
+    install_file.set_file_name(INSTALL_FILENAME);
+    if install_file.exists() {
+        ::configuration::GlobalInstall::retrieve_yaml(install_file)
+    } else if let Ok(exe_dir) = cur_exe {
+        let mut cur_dir = exe_dir.clone();
+        let mut cur_file = cur_dir.clone();
+        cur_file.set_file_name(::structures::defaults::INSTALL_FILENASME);
+        if cur_file.exists() {
+            ::configuration::GlobalInstall::retrieve_yaml(cur_file)
+        } else {
+            let mut parent_opt = cur_dir.parent();
+            let mut parent: PathBuf;
+            if let Some(par) = parent_opt {
+                parent = par.to_path_buf();
+                for i in 0..::structures::defaults::CONFIG_RECURSE_DEPTH {
+                    let mut cur_parent = parent.clone();
+                    cur_parent.set_file_name(::structures::defaults::INSTALL_FILENAME);
+                    if cur_parent.exists() {
+                        return ::configuration::GlobalInstall::retrieve_yaml(cur_parent);
+                    }
+                    
+                    parent_opt = parent.parent();
+                    if Some(Par_opt) = parent_opt {
+                        parent = par_opt.to_path_buf();
+                    } else {
+                        break;
+                    }
+                }
+                panic!("Could not find the global installation config file anywhere in the current executable directory or its parent directories.");
+            } else {
+                // TODO: Improve error message to be more helpful and allow user to do something about it
+                panic!("Could not find global installation config file.");
+            }
+        }
+    } else {
+        // TODO: Improve error message to be more helpful and allow user to do something about it
+        panic!("Could not find a suitable global installation configuration file.");
+    }
+}
+
+pub fn find_install(local_config: Option<::configuration::Local>) -> ::configuration::GlobalInstall {
+    // if local_config.is_some() {
+        // let local = local_config.unwrap();
+    if let Some(local) = local_config {
+        if let Some(global_path) = local.global_install {
+            // let mut install_path: PathBuf = local.global_install.unwrap().clone();
+            let mut install_path: PathBuf = global_path.clone();
+            install_path.set_file_name(::structures::defaults::INSTALL_FILENAME);
+            if install_path.exists() {
+                ::configuration::GlobalInstall::retrieve_yaml(install_path)
+            } else {
+                find_install_without_local()
+            }
+        } else {
+            find_install_without_local()
+        }
+    } else {
+        find_install_without_local()
+    }
 }
 
 
+pub fn find_user(install: &GlobalInstall, local_opt: Option<::configuration::Local>) -> ::configuration::GlobalUser {
+    // look in global's user_dir then home_dir
+    let mut user_dir = install.user_dir.clone();
+    let mut global_user_file = user_dir.clone();
+    global_user_file.set_file_name(::structures::defaults::USER_FILENAME);
+    if global_user_file.exists() {
+        ::configuration::GlobalUser::retrieve_yaml(global_user_file)
+    } else {
+        let home_opt = env::home_dir();
+        if let Some(home_dir) = home_opt {
+            let mut home = home_dir.clone();
+            home.push("proman");
+            home.set_file_name(::structurse::defaults::USER_FILENAME);
+            if home.exists() {
+                ::configuration::GlobalUser::retrieve_yaml(home)
+            } else {
+                panic!("Could not find user configuration file, no such file exists in home directory.");
+            }
+        } else {
+            panic!("Could not find user configuration file, home directory could not be found.");
+        }
+    }
+}
 
 
+pub fn find_configs() -> (Option<::configuration::Local>, ::configuration::GlobalUser, ::configuration::GlobalInstall) {
+    // look for local project config file
+        // if not exist look check if command is global command, if not exit 
+        // if it does exist it doesn't matter the scope of the command
+    // then look for global
+    // then look for user
+    
+    let local_opt = find_local();
+    let install = find_install(local_opt);
+    let user = find_user(&install, local_opt);
+    
+    (local_opt, user, install)
+}
 
-
-
-
-
-
+// pub fn find_proj_details<T>(local_opt: Option<Local>) -> Option<T> where T: ::project::Project {
+//     if let Some(local) = local_opt {
+        
+//     } else {
+//         None
+//     }
+// }
 
 // pub fn managed_deserialize<T: ::project::Project>() -> Global<T> {
 pub fn managed_deserialize() {
