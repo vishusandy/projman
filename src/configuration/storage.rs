@@ -216,7 +216,8 @@ impl GlobalUser {
                 dir.push("bin");
                 dir
             },
-            user_default_install: ::manager::find_user_cfg().unwrap_or(PathBuf::new()),
+            // user_default_install: ::manager::find_user_cfg().unwrap_or(PathBuf::new()),
+            user_default_install: None,
         }
     }
     pub fn new(bin_dir: PathBuf) -> GlobalUser {
@@ -228,7 +229,8 @@ impl GlobalUser {
             } else {
                 bin_dir
             },
-            user_default_install: ::manager::find_user_cfg().unwrap_or(PathBuf::new()),
+            // user_default_install: ::manager::find_user_cfg().unwrap_or(PathBuf::new()),
+            user_default_install: None,
         }
     }
 }

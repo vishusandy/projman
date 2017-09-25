@@ -36,6 +36,18 @@ use ::structures::*;
 
 
 
+// pub struct ManagedConfig {
+//     pub path: PathBuf,
+//     pub 
+// }
+
+// pub struct ManagedResult<T> where T: ::configuration::storage::Configurable {
+//     Ok( (PathBuf, ) ),
+//     None,
+// }
+
+
+
 // check for existence of global_install.cfg, global_user.cfg, and proman_local.cfg (local project cfg)
 // if needed create serialized blank config files
 // deserialize all config files
@@ -251,6 +263,20 @@ pub fn find_user(install: &GlobalInstall, local_opt: Option<::configuration::Loc
     }
 }
 
+/*  check_custom_install(user, global)
+    
+*/
+
+pub fn check_custom_install(user: &GlobalUser, install: &GlobalInstall) -> Option<GlobalInstall> {
+    if let Some(ref user_default) = user.user_default_install {
+        let mut user_install: PathBuf = user_default.clone();
+        user_install.set_file_name(INSTALL_FILENAME);
+        if user_install.exists() && user_install != install.install_path {
+            return Some(::configuration::GlobalInstall::retrieve_yaml(user_install));
+        }
+    }
+    None
+}
 
 pub fn find_configs() -> (Option<::configuration::Local>, ::configuration::GlobalUser, ::configuration::GlobalInstall) {
     // look for local project config file
@@ -263,8 +289,15 @@ pub fn find_configs() -> (Option<::configuration::Local>, ::configuration::Globa
     let local = find_local();
     let local_opt = local.clone();
     let local_opt2 = local_opt.clone();
-    let install = find_install(local_opt);
+    
+    
+    let mut install = find_install(local_opt);
     let user = find_user(&install, local_opt2);
+    
+    let install_opt = check_custom_install(&user, &install);
+    if let Some(new_install) = install_opt {
+        install = new_install;
+    }
     
     (local, user, install)
 }

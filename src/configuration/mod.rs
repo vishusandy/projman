@@ -43,7 +43,7 @@ pub struct Local {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GlobalUser {
     pub user_bin_path: PathBuf,
-    pub user_default_install: PathBuf,
+    pub user_default_install: Option<PathBuf>,
     // user_path: PathBuf, // moved to the GlobalInstall struct
     
 }
