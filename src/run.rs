@@ -131,10 +131,11 @@ fn main() {
     println!("This is the `run` command!");
     
     // ::configuration::storage::Debug::store_configs_blank();
-    println!("");
+    println!("--------------------");
     // ::manager::managed_deserialize();
     
-    
+    let (local, user, install) = ::manager::find_configs();
+    println!("Local: \n{:?}\n\nUser: \n{:?}\n\nInstall: \n{:?}", local, user, install);
     
     
     

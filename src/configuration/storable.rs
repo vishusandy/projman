@@ -38,7 +38,9 @@ pub trait Storable {
     
     // fn retrieve_config_yaml(path: PathBuf) -> Result<Self::C, Self::C> where
         // for<'de> <Self as ::configuration::storage::Configurable>::C: ::serde::Deserialize<'de>
-    fn retrieve_config_yaml(path: PathBuf) -> Result<Self, Self> where for<'de> Self: ::serde::Deserialize<'de> + ::std::marker::Sized
+    
+    // fn get_yaml(path: PathBuf) -> Result<Self, Self> where for<'de> Self: ::serde::Deserialize<'de> + ::std::marker::Sized
+    fn get_yaml(path: PathBuf, create: bool) -> Self where for<'de> Self: ::serde::Deserialize<'de> + ::serde::Serialize + ::std::marker::Sized
     // -> Result<Self::C, Self::C> where
         // for<'de> <Self as ::configuration::storage::Configurable>::C: ::serde::Deserialize<'de>
     {
@@ -48,14 +50,25 @@ pub trait Storable {
                 let mut buffer: String = String::new();
                 f.read_to_string(&mut buffer);
                 let output: Self = ::serde_yaml::from_str(&buffer).expect("Could not deserialize yaml configuration data.");
-                Ok(output)
+                // Ok(output)
+                output
             },
             Err(_) => {
                 let output: Self = Self::blank_data();
+                if create {
+                    output.save_yaml(path);
+                }
                 // let output: Self::C = <Self as ::configuration::storage::Configurable>::blank();
-                Err(output)
+                // Err(output)
+                output
             }
         }
+    }
+}
+
+impl Storable for LocalCfg {
+    fn blank_data() -> Self {
+        ::configuration::LocalCfg::blank(env::current_dir().unwrap_or(PathBuf::new()))
     }
 }
 

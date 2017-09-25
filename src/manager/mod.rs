@@ -33,7 +33,7 @@ use std::cell::RefCell;
 use ::configuration::*;
 use ::configuration::storage::*;
 use ::structures::*;
-
+use ::configuration::storable::*;
 
 
 // pub struct ManagedConfig {
@@ -83,13 +83,18 @@ pub fn find_local() -> Option<::configuration::Local> {
     let cur = env::current_dir();
     if let Ok(cd) = cur {
         let mut local_file = cd.clone();
-        local_file.set_file_name(::structures::defaults::PROJECT_FILENAME);
+        // local_file.set_file_name(::structures::defaults::PROJECT_FILENAME);
+        local_file.push(::structures::defaults::PROJECT_FILENAME);
+        eprintln!("Looking for {}", local_file.display());
         if local_file.exists() {
+            eprintln!("Found local config at {}", local_file.display());
             // retrieve local config
-            let local_cfg = ::configuration::LocalCfg::retrieve_yaml(local_file);
+            // let local_cfg = ::configuration::LocalCfg::retrieve_yaml(local_file);
+            let local_cfg = ::configuration::LocalCfg::get_yaml(local_file, true);
             let local = local_cfg.to_local();
             Some(local)
         } else {
+            
             // look up to CONFIG_RECURSE_DEPTH parent directories 
             // if let Some(par) = parent_opt {
             if let  Some(par) = cd.parent() {
@@ -97,66 +102,35 @@ pub fn find_local() -> Option<::configuration::Local> {
                 let mut parent: PathBuf;
                 let mut parent_opt = cur_dir.parent();
                 
-                let mut 
+                let mut parent = par.to_path_buf();
+                eprintln!("{} not found in current directory {}.  Looking in parent directories for local config", ::structures::defaults::PROJECT_FILENAME, env::current_dir().unwrap().display());
                 
-                parent = par.to_path_buf();
                 'parent_loop: for i in 0..::structures::defaults::CONFIG_RECURSE_DEPTH {
-                        let mut cur_parent = parent.clone();
-                        cur_parent.set_file_name(::structures::defaults::PROJECT_FILENAME);
-                        if cur_parent.exists() {
-                            let local_cfg = ::configuration::LocalCfg::retrieve_yaml(local_file);
-                            let local = local_cfg.to_local();
-                            return Some(local);
-                        }
-                        
-                        // if i+1 != ::structures::defaults::CONFIG_RECURSE_DEPTH {
-                        let parent_clone = parent.clone();
-                        let popt = parent_clone.parent();
-                        if let Some(par_opt) = popt {
-                            parent = par_opt.to_path_buf();
-                            
-                        } else {
-                            break 'parent_loop;
-                        }
-                        // }
-                    
+                    let mut cur_parent = parent.clone();
+                    // cur_parent.set_file_name(::structures::defaults::PROJECT_FILENAME);
+                    cur_parent.push(::structures::defaults::PROJECT_FILENAME);
+                    if cur_parent.exists() {
+                        // let local_cfg = ::configuration::LocalCfg::retrieve_yaml(local_file);
+                        eprintln!("Found local config at {}", cur_parent.exists());
+                        let local_cfg = ::configuration::LocalCfg::get_yaml(local_file, true);
+                        let local = local_cfg.to_local();
+                        return Some(local);
                     }
+                    
+                    // if i+1 != ::structures::defaults::CONFIG_RECURSE_DEPTH {
+                    let parent_clone = parent.clone();
+                    let popt = parent_clone.parent();
+                    if let Some(par_opt) = popt {
+                        parent = par_opt.to_path_buf();
+                        eprintln!("Continuing to look in {}", parent.display());
+                        
+                    } else {
+                        eprintln!("No more parent directories found");
+                        break 'parent_loop;
+                    }
+                    // }
                 
-            // }
-            
-            
-            
-            
-            // if let Some(par) = cd.parent() {
-            //     let mut cur_dir = cd.clone();
-            //     let mut parent: PathBuf;
-            //     {
-            //        
-            //         let mut parent_opt = cur_dir.parent();
-            //         
-            //         parent = par.to_path_buf();
-            //         
-            //         'parent_loop: for i in 0..::structures::defaults::CONFIG_RECURSE_DEPTH {
-            //             let mut cur_parent = parent.clone();
-            //             cur_parent.set_file_name(::structures::defaults::PROJECT_FILENAME);
-            //             if cur_parent.exists() {
-            //                 let local_cfg = ::configuration::LocalCfg::retrieve_yaml(local_file);
-            //                 let local = local_cfg.to_local();
-            //                 return Some(local);
-            //             }
-            //             
-            //             // if i+1 != ::structures::defaults::CONFIG_RECURSE_DEPTH {
-            //             parent_opt = parent.parent();
-            //             if let Some(par_opt) = parent_opt {
-            //                 parent = par_opt.to_path_buf();
-            //                 
-            //             } else {
-            //                 break 'parent_loop;
-            //             }
-            //             // }
-            //         
-            //         }
-            //     }
+                }
                 None
             } else {
                 None
@@ -175,15 +149,19 @@ pub fn find_install_without_local() -> ::configuration::GlobalInstall {
     let os = ::structures::OperatingSystem::new();
     // if os.get_install_path().exists() {
     let mut install_file = os.get_install_path().clone();
-    install_file.set_file_name(INSTALL_FILENAME);
+    // install_file.set_file_name(INSTALL_FILENAME);
+    install_file.push(INSTALL_FILENAME);
     if install_file.exists() {
-        ::configuration::GlobalInstall::retrieve_yaml(install_file)
+        // ::configuration::GlobalInstall::retrieve_yaml(install_file)
+        ::configuration::GlobalInstall::get_yaml(install_file, true)
     } else if let Ok(exe_dir) = cur_exe {
         let mut cur_dir = exe_dir.clone();
         let mut cur_file = cur_dir.clone();
-        cur_file.set_file_name(::structures::defaults::INSTALL_FILENAME);
+        // cur_file.set_file_name(::structures::defaults::INSTALL_FILENAME);
+        cur_file.push(::structures::defaults::INSTALL_FILENAME);
         if cur_file.exists() {
-            ::configuration::GlobalInstall::retrieve_yaml(cur_file)
+            // ::configuration::GlobalInstall::retrieve_yaml(cur_file)
+            ::configuration::GlobalInstall::get_yaml(cur_file, true)
         } else {
             let mut parent_opt = cur_dir.parent();
             let mut parent: PathBuf;
@@ -191,9 +169,11 @@ pub fn find_install_without_local() -> ::configuration::GlobalInstall {
                 parent = par.to_path_buf();
                 for i in 0..::structures::defaults::CONFIG_RECURSE_DEPTH {
                     let mut cur_parent = parent.clone();
-                    cur_parent.set_file_name(::structures::defaults::INSTALL_FILENAME);
+                    // cur_parent.set_file_name(::structures::defaults::INSTALL_FILENAME);
+                    cur_parent.push(::structures::defaults::INSTALL_FILENAME);
                     if cur_parent.exists() {
-                        return ::configuration::GlobalInstall::retrieve_yaml(cur_parent);
+                        // return ::configuration::GlobalInstall::retrieve_yaml(cur_parent);
+                        return ::configuration::GlobalInstall::get_yaml(cur_parent, true);
                     }
                     
                     let parent_clone = parent.clone();
@@ -224,9 +204,11 @@ pub fn find_install(local_config: Option<::configuration::Local>) -> ::configura
         if let Some(global_path) = local.global_install {
             // let mut install_path: PathBuf = local.global_install.unwrap().clone();
             let mut install_path: PathBuf = global_path.clone();
-            install_path.set_file_name(::structures::defaults::INSTALL_FILENAME);
+            // install_path.set_file_name(::structures::defaults::INSTALL_FILENAME);
+            install_path.push(::structures::defaults::INSTALL_FILENAME);
             if install_path.exists() {
-                ::configuration::GlobalInstall::retrieve_yaml(install_path)
+                // ::configuration::GlobalInstall::retrieve_yaml(install_path)
+                ::configuration::GlobalInstall::get_yaml(install_path, true)
             } else {
                 find_install_without_local()
             }
@@ -243,17 +225,21 @@ pub fn find_user(install: &GlobalInstall, local_opt: Option<::configuration::Loc
     // look in global's user_dir then home_dir
     let mut user_dir = install.user_dir.clone();
     let mut global_user_file = user_dir.clone();
-    global_user_file.set_file_name(::structures::defaults::USER_FILENAME);
+    // global_user_file.set_file_name(::structures::defaults::USER_FILENAME);
+    global_user_file.push(::structures::defaults::USER_FILENAME);
     if global_user_file.exists() {
-        ::configuration::GlobalUser::retrieve_yaml(global_user_file)
+        // ::configuration::GlobalUser::retrieve_yaml(global_user_file)
+        ::configuration::GlobalUser::get_yaml(global_user_file, true)
     } else {
         let home_opt = env::home_dir();
         if let Some(home_dir) = home_opt {
             let mut home = home_dir.clone();
             home.push("proman");
-            home.set_file_name(::structures::defaults::USER_FILENAME);
+            // home.set_file_name(::structures::defaults::USER_FILENAME);
+            home.push(::structures::defaults::USER_FILENAME);
             if home.exists() {
-                ::configuration::GlobalUser::retrieve_yaml(home)
+                // ::configuration::GlobalUser::retrieve_yaml(home)
+                ::configuration::GlobalUser::get_yaml(home, true)
             } else {
                 panic!("Could not find user configuration file, no such file exists in home directory.");
             }
@@ -270,9 +256,11 @@ pub fn find_user(install: &GlobalInstall, local_opt: Option<::configuration::Loc
 pub fn check_custom_install(user: &GlobalUser, install: &GlobalInstall) -> Option<GlobalInstall> {
     if let Some(ref user_default) = user.user_default_install {
         let mut user_install: PathBuf = user_default.clone();
-        user_install.set_file_name(INSTALL_FILENAME);
+        // user_install.set_file_name(INSTALL_FILENAME);
+        user_install.push(INSTALL_FILENAME);
         if user_install.exists() && user_install != install.install_path {
-            return Some(::configuration::GlobalInstall::retrieve_yaml(user_install));
+            // return Some(::configuration::GlobalInstall::retrieve_yaml(user_install));
+            return Some(::configuration::GlobalInstall::get_yaml(user_install, true));
         }
     }
     None
