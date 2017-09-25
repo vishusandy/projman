@@ -6,7 +6,10 @@ use std::collections::HashMap;
 use std::marker::PhantomData;
 
 pub mod storage;
+pub mod storable;
+
 use structures::*;
+use ::configuration::storable::*;
 
 // saved as a hjson file
 #[derive(Serialize, Deserialize, Debug)]
