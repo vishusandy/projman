@@ -44,6 +44,7 @@ use winreg::enums::*;
 
 use ::structures::*;
 use ::structures::var_str::*;
+use ::configuration::storable::*;
 
 #[cfg(test)]
 mod tests {
@@ -133,6 +134,13 @@ fn main() {
     // ::configuration::storage::Debug::store_configs_blank();
     println!("--------------------");
     // ::manager::managed_deserialize();
+    
+    // Create local config
+    // let local_temp = PathBuf::from(r#"C:\code\lang\Rust\proj\projman\proman_project.cfg"#);
+    // let mut local_dir = local_temp.clone();
+    // local_dir = local_dir.parent().unwrap().to_path_buf();
+    // let local_data = ::configuration::LocalCfg::blank(local_dir);
+    // local_data.save_yaml(local_temp);
     
     let (local, user, install) = ::manager::find_configs();
     println!("Local: \n{:?}\n\nUser: \n{:?}\n\nInstall: \n{:?}", local, user, install);

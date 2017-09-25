@@ -85,12 +85,12 @@ pub fn find_local() -> Option<::configuration::Local> {
         let mut local_file = cd.clone();
         // local_file.set_file_name(::structures::defaults::PROJECT_FILENAME);
         local_file.push(::structures::defaults::PROJECT_FILENAME);
-        eprintln!("Looking for {}", local_file.display());
-        if local_file.exists() {
-            eprintln!("Found local config at {}", local_file.display());
+        // eprintln!("Looking for {}", local_file.display());
+        if local_file.exists() && local_file.is_file() {
+            // eprintln!("Found local config at {}", local_file.display());
             // retrieve local config
             // let local_cfg = ::configuration::LocalCfg::retrieve_yaml(local_file);
-            let local_cfg = ::configuration::LocalCfg::get_yaml(local_file, true);
+            let local_cfg = ::configuration::LocalCfg::get_yaml(local_file, false);
             let local = local_cfg.to_local();
             Some(local)
         } else {
@@ -103,16 +103,17 @@ pub fn find_local() -> Option<::configuration::Local> {
                 let mut parent_opt = cur_dir.parent();
                 
                 let mut parent = par.to_path_buf();
-                eprintln!("{} not found in current directory {}.  Looking in parent directories for local config", ::structures::defaults::PROJECT_FILENAME, env::current_dir().unwrap().display());
+                // eprintln!("{} not found in current directory {}.  Looking in parent directories for local config, starting with {}", ::structures::defaults::PROJECT_FILENAME, env::current_dir().unwrap().display(), parent.display());
                 
                 'parent_loop: for i in 0..::structures::defaults::CONFIG_RECURSE_DEPTH {
                     let mut cur_parent = parent.clone();
                     // cur_parent.set_file_name(::structures::defaults::PROJECT_FILENAME);
                     cur_parent.push(::structures::defaults::PROJECT_FILENAME);
-                    if cur_parent.exists() {
+                    if cur_parent.exists() && cur_parent.is_file() {
                         // let local_cfg = ::configuration::LocalCfg::retrieve_yaml(local_file);
-                        eprintln!("Found local config at {}", cur_parent.exists());
-                        let local_cfg = ::configuration::LocalCfg::get_yaml(local_file, true);
+                        // eprintln!("Found local config at {}", cur_parent.display());
+                        // let local_cfg = ::configuration::LocalCfg::get_yaml(local_file, true);
+                        let local_cfg = ::configuration::LocalCfg::get_yaml(cur_parent, false);
                         let local = local_cfg.to_local();
                         return Some(local);
                     }
@@ -122,10 +123,10 @@ pub fn find_local() -> Option<::configuration::Local> {
                     let popt = parent_clone.parent();
                     if let Some(par_opt) = popt {
                         parent = par_opt.to_path_buf();
-                        eprintln!("Continuing to look in {}", parent.display());
+                        // eprintln!("Continuing to look in {}", parent.display());
                         
                     } else {
-                        eprintln!("No more parent directories found");
+                        // eprintln!("No more parent directories found");
                         break 'parent_loop;
                     }
                     // }
