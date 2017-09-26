@@ -13,6 +13,7 @@ use super::*;
 use structures::defaults::{DEFAULT_VCS, DEFAULT_VERSION_INC, DEFAULT_LANGUAGE};
 // use ::strucutres::{DEFAULT_INSTALL_PATH, OPERATING_SYSTEM, ARCHITECTURE};
 use ::structures::OperatingSystem;
+use ::structures::LINE_ENDING;
 
 pub trait Storable {
     // type C = Self;
@@ -22,7 +23,10 @@ pub trait Storable {
     // <Self as ::configuration::storage::Configurable>::C: ::serde::Serialize
     {
         let mut f = File::create(path.to_str().expect("Could not convert global_install path to string.")).expect("Could not create file for global_install config serialization.");
-        let ser = ::serde_yaml::to_string(self).expect("Could not serialize yaml configuration data.");
+        let mut ser = ::serde_yaml::to_string(self).expect("Could not serialize yaml configuration data.");
+        if ::structures::LINE_ENDING == "\r\n" {
+            ser = ser.replace("\n", ::structures::LINE_ENDING);
+        }
         #[allow(dead_code)]
         let rst = f.write(ser.as_bytes());
         if let Ok(res) = rst {

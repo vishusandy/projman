@@ -83,6 +83,20 @@ pub static OPERATING_SYSTEM: &'static str = "Mac";
 pub static DEFAULT_INSTALL_PATH: &'static str = "/Applications/proman";
 // #[cfg(target_os = "macos")]
 
+#[cfg(target_os = "windows")]
+pub static LINE_ENDING: &'static str = "\r\n";
+#[cfg(not(windows))]
+pub static LINE_ENDING: &'static str = "\n";
+
+// #[cfg(target_os = "macos")]
+// pub static LINE_ENDING: &'static str = "\n";
+// #[cfg(target_os = "linux")]
+// pub static LINE_ENDING: &'static str = "\n";
+// #[cfg(target_os = "android")]
+// pub static LINE_ENDING: &'static str = "\n";
+
+
+
 #[cfg(target_os = "linux")]
 pub static OPERATING_SYSTEM: &'static str = "Linux";
 #[cfg(target_os = "linux")]
