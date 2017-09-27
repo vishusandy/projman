@@ -9,6 +9,14 @@ use ::structures::executables::*;
 use ::configuration::*;
 use ::configuration::storage::*;
 
+pub struct Action {
+    
+}
+
+pub struct Behavior {
+    backup: Vec<Executable>,
+    
+}
 
 pub struct DefaultLang {
     
@@ -20,6 +28,7 @@ pub struct DefaultLang {
 //   each project type can have its own behavior reader/handler.
 //   Each language/project type has its own behavior variant
 
+// pub trait Language : ::configuration::Storable {
 pub trait Language {
     fn language(&self) -> String; // maybe a 'static str ?
     fn projtype(&self) -> String; // maybe a 'static str ?
@@ -34,7 +43,9 @@ pub trait Language {
     // fn perform_custom_action<'a, 'b>(&'a str, &Vec<&VarStr>, &Executable) -> Result<String, String>; // action, arguments, action to execute
 }
 
-
+pub trait Behaviors {
+    fn do_action(&self) -> Result<String, String>;
+}
 
 
 // have a <language>.cfg file in the project directory

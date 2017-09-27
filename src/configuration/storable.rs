@@ -20,11 +20,14 @@ use structures::defaults::{DEFAULT_VCS, DEFAULT_VERSION_INC, DEFAULT_LANGUAGE};
 use ::structures::OperatingSystem;
 use ::structures::LINE_ENDING;
 
-// TODO: implement default trait methods for save/get msgpack, json, and hjson
 
 
 pub trait Storable {
     // type C = Self;
+    
+    fn parse_vars(&mut self) {
+        
+    }
     fn blank_data() -> Self;
     fn save_yaml(&self, path: PathBuf) -> bool
         where Self: ::serde::Serialize

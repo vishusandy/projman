@@ -85,6 +85,10 @@ impl Local {
         
     }
     */
+    
+    // pub fn get_behavior<T>(&self) -> T where T: ::language_details::Language {
+    //     
+    // }
     pub fn to_local_cfg(&self) -> LocalCfg {
         LocalCfg {
             project_path: self.project_path.to_str().unwrap_or("").to_string(),
@@ -760,6 +764,7 @@ impl Configurable for LocalCfg {
     }
     
 }
+
 
 // TODO: Important: implement Global functions to
 //    deserialize/serialize the config files and
