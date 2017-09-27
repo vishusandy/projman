@@ -14,6 +14,9 @@ extern crate os_type;
 extern crate regex;
 extern crate semver;
 
+// extern crate serde_hjson;
+// extern crate serde_hjson;
+// extern crate serde_hjson;
 
 // mod configuration;
 // mod project;
@@ -26,6 +29,7 @@ mod project;
 mod structures;
 mod manager;
 mod helpers;
+mod language_details;
 
 use manager::*;
 

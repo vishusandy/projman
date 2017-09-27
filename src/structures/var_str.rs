@@ -16,17 +16,17 @@ use std::ffi::OsStr;
 use ::serde::{Deserialize, Serialize};
 use ::rmps::{Deserializer, Serializer};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum VarStr {
     Parsed(ParsedVar),
     Unparsed(UnparsedVar),
     // Error,
 }
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ParsedVar {
     pub string: String,
 }
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UnparsedVar {
     pub string: String,
 }

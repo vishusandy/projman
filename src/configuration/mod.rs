@@ -34,7 +34,7 @@ pub struct Local {
     pub project_path: PathBuf,
     pub global_install: Option<PathBuf>,
     pub vcs: VersionControl,
-    pub inc_version: VersionInc,
+    pub inc_version: VersionInc, // TODO: remove from here, move to language details
     pub language: Language,
     pub proj_type: String,
     pub autoruns: Vec<String>,

@@ -9,7 +9,7 @@ use std::env;
 use std::ffi::OsString;
 use regex::Regex;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Executable {
     source: PathBuf,
     runin: Option<PathBuf>,

@@ -9,6 +9,9 @@ pub mod defaults;
 use structures::defaults::*;
 // use structures::defaults::{DEFAULT_VCS, DEFAULT_VERSION_INC, DEFAULT_LANGUAGE};
 
+pub mod autorun;
+use structures::autorun::*;
+
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 

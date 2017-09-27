@@ -1,6 +1,12 @@
 
 use super::*;
 
+/*  commands for proman
+    update  rerun the default create command for the specified path, name, lang, type.  Updates the local language settings to reflect any install/user changes
+    
+    
+*/
+
 /*pub enum RustReleaseChannels {
     Stable,
     Beta,
