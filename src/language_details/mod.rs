@@ -16,6 +16,8 @@ pub struct Action {
 pub struct Behavior {
     backup: Vec<Executable>,
     
+    
+    customs: HashMap
 }
 
 pub struct DefaultLang {

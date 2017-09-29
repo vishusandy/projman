@@ -29,7 +29,8 @@ mod project;
 mod structures;
 mod manager;
 mod helpers;
-mod language_details;
+// mod language_details;
+mod behavior;
 
 use manager::*;
 

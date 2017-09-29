@@ -1,5 +1,13 @@
 
-
+/*  Extra variables
+    num_cores
+    operating_system
+    default_install_path
+    
+    
+    
+    
+*/
 
 
 use std::env;
@@ -30,6 +38,13 @@ pub struct ParsedVar {
 pub struct UnparsedVar {
     pub string: String,
 }
+
+/*  TODO:
+    rewrite VarStr to retrain a copy of the original
+        after it has been parsed.
+    return an error that the VarStr is not parsed when trying to run
+    an executable with an unparsed VarStr
+*/
 
 impl VarStr {
     pub fn blank() -> VarStr {
@@ -127,7 +142,34 @@ impl HasVars for VarStr {
                     var = (&var[1..]).to_string();
                     // println!("!flag: found, setting var to `{}`", var);
                 }
-                if var.trim().starts_with("arg:") {
+                if var.trim().starts_with("param:") {
+                    let all_args: Vec<String> = env::args().collect();
+                    let arguments = &var[6..].trim();
+                    if arguments.contains(",") {
+                        let mut matched: bool = false;
+                        'flaglist: for raw_argument in arguments.split(",") {
+                            // skip checking if the argument starts_with("-") to allow any argument not just flags to be found
+                            let argument = raw_argument.trim();
+                            if all_args.contains(&argument.to_string()) {
+                                // matched = true;
+                                replace = &argument.to_string();
+                                break 'flaglist;
+                            }
+                        }
+                        // if !matched {
+                        //     replace = if !reverse { "false".to_string() } else { "true".to_string() };
+                        // }
+                    } else {
+                        if all_args.contains(&arguments.to_string()) {
+                            // replace = if !reverse { "true".to_string() } else { "false".to_string() };
+                            replace = &arguments.to_string();
+                        } else {
+                            // replace = &arguments.to_string();
+                            // replace = if !reverse { "false".to_string() } else { "true".to_string() };
+                            
+                        }
+                    }
+                } else if var.trim().starts_with("arg:") {
                     let argument = &var.trim()[4..].trim();
                     if argument.trim() == "~" {
                         let cur_proc = env::current_exe();

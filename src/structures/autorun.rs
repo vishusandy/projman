@@ -24,6 +24,7 @@ pub struct AutoRuns {
     
 }
 
+
 pub trait AutoRunnable {
     fn get_before(&self) -> AutoRuns;
     fn get_after(&self) -> AutoRuns;

@@ -1,0 +1,39 @@
+[variables]
+num_jobs = [[num_cores]]
+
+[autorun-before]
+upload = { run: ""[, in: ""][, with: ""] }
+backup = ...
+
+[autorun-after]
+upload = { run: ""[, in: ""][, with: ""] }
+backup = ...
+
+[actions]
+build = cargo build
+run = cargo run [[arg:--bin]]
+nightly = rustup default nightly
+stable = rustup default stable
+
+
+----------------------------------------------------------
+User and Install 
+
+[variables]
+rust-bin-path = c:\users\andrew\.cargo\bin\
+
+[autorun-before]
+language.projtype.
+
+[actions]
+*.*.new = { run: ""[, in: ""][, with: ""] }
+Rust.*.new = { run: "[[rust-bin-path]]cargo.exe", with: "new [[arg:0]]" }
+
+
+
+
+
+
+
+
+

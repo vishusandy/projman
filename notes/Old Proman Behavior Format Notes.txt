@@ -1,0 +1,33 @@
+// pub struct 
+// action, Vec<Executable>
+// use = for assigning action executable, += and =+ (maybe -=) for prepending and appending autoruns?
+// action = Executable
+// action += Executable // prepend
+// action =+ Executable // append
+// first try json deserialization, then Executable::from_str
+
+// look for project_behavior.cfg in local, as well as for
+//      <language>.<projtype>cfg in user, then install directories.
+// The possible three files should be aggregated, filtering out
+//      languages and project types that do not match the current lang/type
+//
+// The local file is assumed to have all actions and variables assigned
+//      to the current language/project type
+// The User and Install behavior files will have a <language>.<projtype> prefix
+//    [actions]
+//      <language>.<projtype>.<action> = Executable
+//      <language>.<projtype>.Global = Executable  // Any global action, must be uppercase Global
+//      <language>.<projtype>.Local = Executable   // Any local action, must be uppercase Local
+//      Rust-MultiBinary|Rust-Library|C-*|C++-*|D.*
+//      Formula: splitn(3, "")
+//              OLD Formula: if (langs== "*" || (Rust, C, C++, D).contains(CurrentLanguage)) && (projtypes == "*" || (<types>).contains(CurrentType))
+// To attach a command or autorun 
+//    [autorun-before|autorun-after]
+//    [variables]
+//      <language>.<projtype>.<var> = var value
+//
+// can use globs for replacing language, projtype, and action
+//      <language>.*.<action>
+//      this will not actually add anything to every single language behavior
+//      but will not check if the language matches the current language before
+//      adding the action/autorun/var to the current
